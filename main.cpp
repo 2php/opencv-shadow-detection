@@ -152,6 +152,14 @@ bool nframeSorting ( FrameObject first, FrameObject second)
 
 bool flag = TRUE;
 
+template <class T>
+string to_string(T t, int n)
+{
+  std::ostringstream oss;
+  oss << "frame_" << t << "_" << n << ".jpg";
+  return oss.str();
+}
+
 void Delivery(void *param)
 {
 	while(TRUE){
@@ -159,20 +167,32 @@ void Delivery(void *param)
 	list<FrameObject*>::iterator j;
 	list<DetectedObject*>::iterator i;
 	list<DetectedObject*> det;
+
+	int p[3];    
+	p[0] = CV_IMWRITE_JPEG_QUALITY;
+	p[1] = 10;
+	p[2] = 0;
+
 	for(j=frame.begin(); j != frame.end(); j++){
 		det = (*j)->getDetectedObject();
+		int n = 0;
 		for(i=det.begin(); i != det.end(); ++i){
 			//reShadowing((*j),bgModel);
+			n++;
 			IplImage *frame=(*j)->getFrame();
 			IplImage *result=(*j)->getFrame();
+			IplImage *salient=(*j)->getSalientMask();
 			cvZero(result);
 			cvOr(frame,result,result,(*i)->mvoMask);
-			//cvShowImage("mvo",bgModel->background);
-			cvShowImage("shadow",(*i)->shadowMask);
-			cvShowImage("mvo",result);
-			cvShowImage("frame",(*j)->getFrame());
-			cvShowImage("salient",(*j)->getSalientMask());
-			cvWaitKey(0);
+			//cvShowImage("mvo",bgModel->background);			
+			cvSaveImage(to_string((*j)->getFrameNumber(),n).c_str(),result,p);
+
+			//cvShowImage("shadow",(*i)->shadowMask);
+			//cvShowImage("mvo",result);
+			//cvShowImage("frame",frame);
+			//cvShowImage("salient",salient);
+			//cvWaitKey(0);
+			cvReleaseImage(&salient);
 			cvReleaseImage(&frame);
 			cvReleaseImage(&result);
 	/*		delete (*j);*/
