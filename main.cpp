@@ -295,8 +295,8 @@ while(thread_num<MAX_THREAD_NUM && flag){
 	/****************************/
 	threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
 	
-	//if(thread_num%5==0 && thread_num !=0) 
-	//	WaitForSingleObject(handle.at(thread_num-1),INFINITE);
+	if(thread_num%5==0 && thread_num !=0) 
+		WaitForSingleObject(handle.at(thread_num-1),INFINITE);
 	thread_num++;
 /****************BLOB ANALYSIS*****************/
 ///////bisogna passare le maschere degli oggetti...
