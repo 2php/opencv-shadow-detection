@@ -1,5 +1,7 @@
 #include "shadow.h"
 
+LoggerPtr loggerCameraCorrection(Logger::getLogger( "Camera Correction"));
+LoggerPtr loggershadowDetection(Logger::getLogger( "Shadow Detection"));
 /*!
 //void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size)
 //	Corregge un singolo frame:
@@ -24,11 +26,13 @@
 void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){	
 	double w;
 	CvMat* kernel = cvCreateMat( 3, 3, CV_32FC1) ;
+	LOG4CXX_INFO(loggerCameraCorrection , "Camera correction started");
 	try{
 
 		switch(type){
 		case MEDIAN:
 			cvSmooth(src,dst,CV_MEDIAN,size,0,0,0);
+			LOG4CXX_DEBUG(loggerCameraCorrection,"Median filter application");
 			break;
 		case HIGH_BOOST:
 			w=9*A-1;
@@ -43,6 +47,7 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 			cvSet2D(kernel, 2, 2, cvRealScalar( -1) );
 
 			cvFilter2D(src, dst,kernel,cvPoint(0,0));
+			LOG4CXX_DEBUG(loggerCameraCorrection,"High boost application");
 			break;
 		case SHARPENING:
 			cvSet2D(kernel, 0, 0, cvRealScalar( 0) );
@@ -56,6 +61,7 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 			cvSet2D(kernel, 2, 2, cvRealScalar( 0) );
 
 			cvFilter2D(src, dst,kernel,cvPoint(0,0));
+			LOG4CXX_DEBUG(loggerCameraCorrection,"Sharpening application");
 			break;
 		case (MEDIAN+SHARPENING):
 			cvSet2D(kernel, 0, 0, cvRealScalar( 0) );
@@ -71,6 +77,7 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 			cvSmooth(src,dst,CV_MEDIAN,size,0,0,0);
 			cvFilter2D(dst, dst,kernel,cvPoint(0,0));
 			break;
+			LOG4CXX_DEBUG(loggerCameraCorrection,"Median filter and Sharpening application");
 		case (MEDIAN+HIGH_BOOST):
 			w=9*A-1;
 			cvSet2D(kernel, 0, 0, cvRealScalar( -1) );
@@ -85,6 +92,7 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 
 			cvSmooth(src,dst,CV_MEDIAN,size,0,0,0);
 			cvFilter2D(dst, dst,kernel,cvPoint(0,0));
+			LOG4CXX_DEBUG(loggerCameraCorrection,"Median filter and high boost application");
 			break;
 		case (MEDIAN+HIGH_BOOST+MEDIAN):
 			w=9*A-1;
@@ -101,6 +109,7 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 			cvSmooth(src,dst,CV_MEDIAN,size,0,0,0);
 			cvFilter2D(dst, dst,kernel,cvPoint(0,0));
 			cvSmooth(dst,dst,CV_MEDIAN,size-2,0,0,0);
+			LOG4CXX_DEBUG(loggerCameraCorrection,"Median filter, high boost and median filter application again ");
 			break;
 		case(MEDIAN+SHARPENING+MEDIAN):
 			cvSet2D(kernel, 0, 0, cvRealScalar( 0) );
@@ -116,12 +125,13 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 			cvSmooth(src,dst,CV_MEDIAN,size,0,0,0);
 			cvFilter2D(dst, dst,kernel,cvPoint(0,0));
 			cvSmooth(dst,dst,CV_MEDIAN,size-2,0,0,0);
+			LOG4CXX_DEBUG(loggerCameraCorrection,"Median filter, sharpening and median filter application again ");
 			break;
 		default:
 			throw 1;
 		}
 	}catch(int e){
-		printf("Exception: the inserted parameter 'type' in cameraCorrection() isn't allowed");
+		LOG4CXX_ERROR(loggerCameraCorrection,"Exception: the inserted parameter 'type' in cameraCorrection() isn't allowed");
 	}
 }
 
@@ -141,107 +151,114 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 	beta=0.9f;
 	double Th1=-1000000;
 	double Ts1=-100000003;
+	LOG4CXX_INFO(loggershadowDetection, "Show Detection started....");
 
-	IplImage *hsv;
-	IplImage *H=cvCreateImage(cvGetSize(src), src->depth,1 ); 
-	IplImage *S=cvCreateImage(cvGetSize(src), src->depth,1 ); 
-	IplImage *V=cvCreateImage(cvGetSize(src), src->depth,1 ); 
-	IplImage *bH=cvCreateImage(cvGetSize(src), src->depth,1 ); 
-	IplImage *bS=cvCreateImage(cvGetSize(src), src->depth,1 ); 
-	IplImage *bV=cvCreateImage(cvGetSize(src), src->depth,1 ); 
-	cvZero(result);
-	cvZero(H);
-	cvZero(S);
-	cvZero(V);
-	cvZero(bH);
-	cvZero(bS);
-	cvZero(bV);
-	hsv=cvCloneImage(src);
-	cvCvtColor(src,hsv,CV_BGR2HSV);
-	cvCvtColor(background,background,CV_BGR2HSV);
-	//cvCvtColor(dst,dst,CV_BGR2HSV);
+	try{
+			IplImage *hsv;
+		IplImage *H=cvCreateImage(cvGetSize(src), src->depth,1 ); 
+		IplImage *S=cvCreateImage(cvGetSize(src), src->depth,1 ); 
+		IplImage *V=cvCreateImage(cvGetSize(src), src->depth,1 ); 
+		IplImage *bH=cvCreateImage(cvGetSize(src), src->depth,1 ); 
+		IplImage *bS=cvCreateImage(cvGetSize(src), src->depth,1 ); 
+		IplImage *bV=cvCreateImage(cvGetSize(src), src->depth,1 ); 
+		cvZero(result);
+		cvZero(H);
+		cvZero(S);
+		cvZero(V);
+		cvZero(bH);
+		cvZero(bS);
+		cvZero(bV);
+		hsv=cvCloneImage(src);
+		cvCvtColor(src,hsv,CV_BGR2HSV);
+		cvCvtColor(background,background,CV_BGR2HSV);
+		LOG4CXX_DEBUG(loggershadowDetection, "Conversion to HSV");
+		//cvCvtColor(dst,dst,CV_BGR2HSV);
 	
-	IplImage *temp,*Dbkg;
-	Dbkg=cvCloneImage(hsv);
-	cvZero(Dbkg);
+		IplImage *temp,*Dbkg;
+		Dbkg=cvCloneImage(hsv);
+		cvZero(Dbkg);
 
-	cvAbsDiff(hsv,background,Dbkg);
-	CvScalar MED = cvAvg(Dbkg,foregroundSelection);
-	temp=cvCloneImage(hsv);
-	cvAbsDiffS(Dbkg,temp,MED);
-	CvScalar MAD = cvAvg(temp,foregroundSelection);
+		cvAbsDiff(hsv,background,Dbkg);
+		CvScalar MED = cvAvg(Dbkg,foregroundSelection);
+		temp=cvCloneImage(hsv);
+		cvAbsDiffS(Dbkg,temp,MED);
+		CvScalar MAD = cvAvg(temp,foregroundSelection);
 
-	CvScalar MED1 = cvAvg(hsv,foregroundSelection);
-	CvScalar MED2 = cvAvg(background,foregroundSelection);
+		CvScalar MED1 = cvAvg(hsv,foregroundSelection);
+		CvScalar MED2 = cvAvg(background,foregroundSelection);
 
-	Th = (MED.val[0]+MAD.val[0])/2+10;
-	Ts = (MED.val[1]+MAD.val[1])/2-10;
-	beta = ((MED.val[2]+3*1.4826*MAD.val[2])/MED2.val[2])+K;
-	alfa = MED1.val[2]/MED2.val[2]-K;
+		Th = (MED.val[0]+MAD.val[0])/2+10;
+		Ts = (MED.val[1]+MAD.val[1])/2-10;
+		beta = ((MED.val[2]+3*1.4826*MAD.val[2])/MED2.val[2])+K;
+		alfa = MED1.val[2]/MED2.val[2]-K;
 
-	cvReleaseImage(&Dbkg);
-	cvReleaseImage(&temp);
-//	Ts=20;
+		cvReleaseImage(&Dbkg);
+		cvReleaseImage(&temp);
+	//	Ts=20;
 
-	//temp=cvCloneImage(hsv);
-	//cvAbsDiffS(Dbkg,temp,MED);
-	//CvScalar MAD = cvAvg(temp);
+		//temp=cvCloneImage(hsv);
+		//cvAbsDiffS(Dbkg,temp,MED);
+		//CvScalar MAD = cvAvg(temp);
 
-	cvSplit( hsv, H, S, V, 0);
-	cvSplit( background, bH, bS, bV, 0);
+		cvSplit( hsv, H, S, V, 0);
+		cvSplit( background, bH, bS, bV, 0);
 
 
-	uchar* dataFs = (uchar *)foregroundSelection->imageData;
-	int stepFs = foregroundSelection->widthStep/sizeof(uchar);
+		uchar* dataFs = (uchar *)foregroundSelection->imageData;
+		int stepFs = foregroundSelection->widthStep/sizeof(uchar);
 	
-	uchar* data = (uchar *)result->imageData;
-	int step = result->widthStep/sizeof(uchar);
+		uchar* data = (uchar *)result->imageData;
+		int step = result->widthStep/sizeof(uchar);
 	
-	uchar* dataH = (uchar *)H->imageData;
-	int stepH = H->widthStep/sizeof(uchar);
+		uchar* dataH = (uchar *)H->imageData;
+		int stepH = H->widthStep/sizeof(uchar);
 	
-	uchar* dataS = (uchar *)S->imageData;
-	int stepS = S->widthStep/sizeof(uchar);
+		uchar* dataS = (uchar *)S->imageData;
+		int stepS = S->widthStep/sizeof(uchar);
 	
-	uchar* dataV    = (uchar *)V->imageData;
-	int stepV = V->widthStep/sizeof(uchar);
+		uchar* dataV    = (uchar *)V->imageData;
+		int stepV = V->widthStep/sizeof(uchar);
 	
-	uchar* databH = (uchar *)bH->imageData;
-	int stepbH = bH->widthStep/sizeof(uchar);
+		uchar* databH = (uchar *)bH->imageData;
+		int stepbH = bH->widthStep/sizeof(uchar);
 	
-	uchar* databS = (uchar *)bS->imageData;
-	int stepbS = bS->widthStep/sizeof(uchar);
+		uchar* databS = (uchar *)bS->imageData;
+		int stepbS = bS->widthStep/sizeof(uchar);
 	
-	uchar* databV    = (uchar *)bV->imageData;
-	int stepbV = bV->widthStep/sizeof(uchar);
+		uchar* databV    = (uchar *)bV->imageData;
+		int stepbV = bV->widthStep/sizeof(uchar);
 
-	for(int i=0; i<hsv->height;i++){
-		for(int j=0; j<hsv->width;j++){
-			if((float)dataFs[i*stepFs+j] == 255){
+		for(int i=0; i<hsv->height;i++){
+			for(int j=0; j<hsv->width;j++){
+				if((float)dataFs[i*stepFs+j] == 255){
 
-				if(
-				((float)dataV[i*stepV+j]/(float)databV[i*stepbV+j]>=alfa) && ((float)dataV[i*stepV+j]/(float)databV[i*stepbV+j]<=beta)
-														    &&
-									  (fabsf((float)dataH[i*stepH+j]-(float)databH[i*stepbH+j])<=Th)
-															&&
-								   		  (((float)dataS[i*stepS+j]-(float)databS[i*stepbS+j])<=Ts)
+					if(
+					((float)dataV[i*stepV+j]/(float)databV[i*stepbV+j]>=alfa) && ((float)dataV[i*stepV+j]/(float)databV[i*stepbV+j]<=beta)
+																&&
+										  (fabsf((float)dataH[i*stepH+j]-(float)databH[i*stepbH+j])<=Th)
+																&&
+								   			  (((float)dataS[i*stepS+j]-(float)databS[i*stepbS+j])<=Ts)
 				
-				){ 
-					data[i*step+j] = 255;
-				}else 
-					data[i*step+j] = 0;
+					){ 
+						data[i*step+j] = 255;
+					}else 
+						data[i*step+j] = 0;
+				}
 			}
 		}
-	}
 
-	cvCvtColor(background,background,CV_HSV2BGR);
-	cvReleaseImage(&hsv);
-	cvReleaseImage(&H);
-	cvReleaseImage(&S);
-	cvReleaseImage(&V);
-	cvReleaseImage(&bH);
-	cvReleaseImage(&bS);
-	cvReleaseImage(&bV);
+		cvCvtColor(background,background,CV_HSV2BGR);
+		cvReleaseImage(&hsv);
+		cvReleaseImage(&H);
+		cvReleaseImage(&S);
+		cvReleaseImage(&V);
+		cvReleaseImage(&bH);
+		cvReleaseImage(&bS);
+		cvReleaseImage(&bV);
+		}
+		catch{
+		LOG4CXX_ERROR(loggershadowDetection,"Error in show detection");
+		}
 }
 
 //void AbsDiff(IplImage *hsv,IplImage *background,IplImage *Dbkg,IplImage *foregroundSelection){
