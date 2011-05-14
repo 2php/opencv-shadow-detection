@@ -2,6 +2,9 @@
 
 LoggerPtr loggerCameraCorrection(Logger::getLogger( "Camera Correction"));
 LoggerPtr loggershadowDetection(Logger::getLogger( "Shadow Detection"));
+LoggerPtr loggerBackgroundSuppression(Logger::getLogger( "Background Suppression"));
+LoggerPtr loggerBlobAnalisis(Logger::getLogger( "Blob analisi"));
+
 /*!
 //void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size)
 //	Corregge un singolo frame:
@@ -151,7 +154,7 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 	beta=0.9f;
 	double Th1=-1000000;
 	double Ts1=-100000003;
-	LOG4CXX_INFO(loggershadowDetection, "Show Detection started....");
+	LOG4CXX_INFO(loggershadowDetection, "Shadow Detection started....");
 
 	try{
 			IplImage *hsv;
@@ -191,7 +194,7 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		Ts = (MED.val[1]+MAD.val[1])/2-10;
 		beta = ((MED.val[2]+3*1.4826*MAD.val[2])/MED2.val[2])+K;
 		alfa = MED1.val[2]/MED2.val[2]-K;
-
+		LOG4CXX_DEBUG(loggershadowDetection, "Param Define conclused");
 		cvReleaseImage(&Dbkg);
 		cvReleaseImage(&temp);
 	//	Ts=20;
@@ -255,9 +258,10 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		cvReleaseImage(&bH);
 		cvReleaseImage(&bS);
 		cvReleaseImage(&bV);
+		LOG4CXX_DEBUG(loggershadowDetection, "shadow detection and memory release conclused");
 		}
-		catch{
-		LOG4CXX_ERROR(loggershadowDetection,"Error in show detection");
+		catch(exception& e){
+		LOG4CXX_ERROR(loggershadowDetection,"Error in show detection: "<< e.what());
 		}
 }
 
@@ -319,18 +323,25 @@ void backgroundSuppression( IplImage *src, IplImage *background,IplImage *result
 	dataBG      = (uchar *)background->imageData;
 
 	dataDBT		= (uchar *)result->imageData;
+	LOG4CXX_INFO(loggerBackgrounSuppression, "Background Suppression started....");
 	stepDbt = result->widthStep/sizeof(uchar);
 	int t =0;
-	for(i=0;i<height;i++) {
-		for(j=0;j<width;j++) {
-			for(k=0;k<channels;k++){
-				dst[k] = fabsf(dataF[i*step+j*channels+k]-dataBG[i*step+j*channels+k]);
-				if(dst[0] <= dst[k]){
-					dst[0] = dst[k];
+	try{
+			for(i=0;i<height;i++) {
+			for(j=0;j<width;j++) {
+				for(k=0;k<channels;k++){
+					dst[k] = fabsf(dataF[i*step+j*channels+k]-dataBG[i*step+j*channels+k]);
+					if(dst[0] <= dst[k]){
+						dst[0] = dst[k];
+					}
 				}
+				dataDBT[i*stepDbt+j] = dst[0];
 			}
-			dataDBT[i*stepDbt+j] = dst[0];
 		}
+			LOG4CXX_DEBUG(loggerBackgrounSuppression, "Background suppression conclused");
+	}
+	catch(exception& e){
+	LOG4CXX_ERROR(loggerBackgroundSuppression,"Error in Background Suppression: "<< e.what());
 	}
 }
 
@@ -409,46 +420,48 @@ void blobAnalysis(IplImage * imgA, IplImage * imgB){
 	const int MAX_CORNERS = 1000;
 	CvSize img_sz = cvGetSize( imgA );
 	int win_size = 15;
+	LOG4CXX_INFO(loggerBlobAnalisis , "Blob analisis started");
+	try{
+		IplImage *imgC = cvCreateImage(cvGetSize(imgA), IPL_DEPTH_32F, 3);
 
-	IplImage *imgC = cvCreateImage(cvGetSize(imgA), IPL_DEPTH_32F, 3);
+		// Get the features for tracking
+		IplImage* eig_image = cvCreateImage( img_sz, IPL_DEPTH_32F, 1 );
+		IplImage* tmp_image = cvCreateImage( img_sz, IPL_DEPTH_32F, 1 );
 
-	// Get the features for tracking
-	IplImage* eig_image = cvCreateImage( img_sz, IPL_DEPTH_32F, 1 );
-	IplImage* tmp_image = cvCreateImage( img_sz, IPL_DEPTH_32F, 1 );
+		int corner_count = MAX_CORNERS;
+		CvPoint2D32f* cornersA = new CvPoint2D32f[ MAX_CORNERS ];
 
-	int corner_count = MAX_CORNERS;
-	CvPoint2D32f* cornersA = new CvPoint2D32f[ MAX_CORNERS ];
+		cvGoodFeaturesToTrack( imgA, eig_image, tmp_image, cornersA, &corner_count,
+			0.05, 5.0, 0, 3, 0, 0.04 );
 
-	cvGoodFeaturesToTrack( imgA, eig_image, tmp_image, cornersA, &corner_count,
-		0.05, 5.0, 0, 3, 0, 0.04 );
+		cvFindCornerSubPix( imgA, cornersA, corner_count, cvSize( win_size, win_size ),
+			cvSize( -1, -1 ), cvTermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03 ) );
 
-	cvFindCornerSubPix( imgA, cornersA, corner_count, cvSize( win_size, win_size ),
-		cvSize( -1, -1 ), cvTermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.03 ) );
+		// Call Lucas Kanade algorithm
+		char features_found[ MAX_CORNERS ];
+		float feature_errors[ MAX_CORNERS ];
 
-	// Call Lucas Kanade algorithm
-	char features_found[ MAX_CORNERS ];
-	float feature_errors[ MAX_CORNERS ];
+		CvSize pyr_sz = cvSize( imgA->width+8, imgB->height/3 );
 
-	CvSize pyr_sz = cvSize( imgA->width+8, imgB->height/3 );
+		IplImage* pyrA = cvCreateImage( pyr_sz, IPL_DEPTH_32F, 1 );
+		IplImage* pyrB = cvCreateImage( pyr_sz, IPL_DEPTH_32F, 1 );
 
-	IplImage* pyrA = cvCreateImage( pyr_sz, IPL_DEPTH_32F, 1 );
-	IplImage* pyrB = cvCreateImage( pyr_sz, IPL_DEPTH_32F, 1 );
+		CvPoint2D32f* cornersB = new CvPoint2D32f[ MAX_CORNERS ];
 
-	CvPoint2D32f* cornersB = new CvPoint2D32f[ MAX_CORNERS ];
-
-	cvCalcOpticalFlowPyrLK( imgA, imgB, pyrA, pyrB, cornersA, cornersB, corner_count, 
-		cvSize( win_size, win_size ), 5, features_found, feature_errors,
-		 cvTermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.3 ), 0 );
-
-	// Make an image of the results
-	for( int i=0; i<1000; i++ ){
-			printf("Error is %f/n", feature_errors[i]);
-		printf("Got it/n");
-		CvPoint p0 = cvPoint( cvRound( cornersA[i].x ), cvRound( cornersA[i].y ) );
-		CvPoint p1 = cvPoint( cvRound( cornersB[i].x ), cvRound( cornersB[i].y ) );
-		cvLine( imgC, p0, p1, CV_RGB(255,0,0), 2 );
-	}
-
+		cvCalcOpticalFlowPyrLK( imgA, imgB, pyrA, pyrB, cornersA, cornersB, corner_count, 
+			cvSize( win_size, win_size ), 5, features_found, feature_errors,
+			 cvTermCriteria( CV_TERMCRIT_ITER | CV_TERMCRIT_EPS, 20, 0.3 ), 0 );7
+			 LOG4CXX_DEBUG(loggingBlobAnalisis,"Lucas Kanade algorithm application");
+		// Make an image of the results
+		for( int i=0; i<1000; i++ ){
+				printf("Error is %f/n", feature_errors[i]);
+			printf("Got it/n");
+			CvPoint p0 = cvPoint( cvRound( cornersA[i].x ), cvRound( cornersA[i].y ) );
+			CvPoint p1 = cvPoint( cvRound( cornersB[i].x ), cvRound( cornersB[i].y ) );
+			cvLine( imgC, p0, p1, CV_RGB(255,0,0), 2 );
+		LOG4CXX_DEBUG(loggingBlobAnalisis,"Make an image of the results");
+		}
+	
 	cvNamedWindow( "ImageA", 0 );
 	cvNamedWindow( "ImageB", 0 );
 	cvNamedWindow( "LKpyr_OpticalFlow", 0 );
@@ -456,7 +469,12 @@ void blobAnalysis(IplImage * imgA, IplImage * imgB){
 	cvShowImage( "ImageA", imgA );
 	cvShowImage( "ImageB", imgB );
 	cvShowImage( "LKpyr_OpticalFlow", imgC );
-
+	LOG4CXX_DEBUG(loggerBlobAnalisis, "Blob analisis completed");
 	cvWaitKey(0);
+	}
+	catch(exception& e)
+	{
+		LOG4CXX_ERROR(loggerBlobAnalisis, "Error in Blob Analisis: " << e.what());
+	}
 
 }
