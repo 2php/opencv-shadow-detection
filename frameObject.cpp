@@ -3,6 +3,10 @@
 //#define TH 30
 #define TL 10
 
+LoggerPtr loggerDO(Logger::getLogger( "Distruction Object"));
+LoggerPtr loggerObject(Logger::getLogger(" Object"));
+LoggerPtr loggerDetect(Logger::getLogger( "Detection Object"));
+
 FrameObject::FrameObject(){
 	frame = NULL; 
 	background = NULL; 
@@ -25,17 +29,23 @@ FrameObject::~FrameObject(){
 	}
 	catch(exception& e){
 		throw e.what();
+		LOG4CXX_ERROR(loggerDO, "Error in distruction Object: "<< e.what().toString());
 	}
 }
 
 FrameObject::FrameObject(IplImage * currentFrame, IplImage * currentBackground,IplImage *salient, int nFrame = 1){
-	size = cvGetSize(currentFrame);
-	frame = currentFrame;
-	background = currentBackground;
-	foregroundMask = cvCreateImage(size, currentFrame->depth,1);
-	salientForegroundMask = salient;
-	frameNumber = nFrame;
-	frameBlobs = CvBlobs();
+	try{
+		size = cvGetSize(currentFrame);
+		frame = currentFrame;
+		background = currentBackground;
+		foregroundMask = cvCreateImage(size, currentFrame->depth,1);
+		salientForegroundMask = salient;
+		frameNumber = nFrame;
+		frameBlobs = CvBlobs();
+	}
+	catch(exception& e){
+		LOG4CXX_ERROR(loggerObject, "Error in FrameObject" << e.what());
+	}
 
 }
 
@@ -46,6 +56,7 @@ IplImage* FrameObject::getSalientMask(){return cvCloneImage(salientForegroundMas
 int FrameObject::getFrameNumber(){return frameNumber;}
 
 void FrameObject::detectAll(initializationParams initPar){
+		LOG4CXX_TRACE(loggerDetect , "Camera correction started");
 		IplImage * img =  getFrame();
 		IplImage * background = getBackground();
 		DetectedObject *temp = new DetectedObject(size,img->depth);
@@ -54,6 +65,7 @@ void FrameObject::detectAll(initializationParams initPar){
 		double TH = initPar.THRESHOLD;
 		//rimuovo il background, ottengo la maschera del foreground
 		backgroundSuppression(img,background,this->foregroundMask);
+		LOG4CXX_INFO(loggerDetect, "");
 		//cvThreshold(this->foregroundMask,this->salientForegroundMask,TL,255,CV_THRESH_BINARY);
 		cvThreshold(this->foregroundMask,this->foregroundMask,TH,255,CV_THRESH_BINARY);
 
