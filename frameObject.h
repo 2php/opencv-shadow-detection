@@ -35,11 +35,16 @@ typedef struct _DetectedObject
 	}
 	
 	virtual ~_DetectedObject(){
-		cvReleaseImage(&totalMask);
-		cvReleaseImage(&mvoMask);
-		cvReleaseImage(&shadowMask);
-		cvReleaseImage(&invertedShadowMask);
-		cvReleaseBlobs(mvoBlobs);
+		try{
+			cvReleaseImage(&totalMask);
+			cvReleaseImage(&mvoMask);
+			cvReleaseImage(&shadowMask);
+			cvReleaseImage(&invertedShadowMask);
+			cvReleaseBlobs(mvoBlobs);
+		}
+		catch(exception& e){
+			throw e.what();
+		}
 	}
 }
 DetectedObject;

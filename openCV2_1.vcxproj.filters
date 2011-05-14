@@ -60,6 +60,9 @@
     <ClInclude Include="log.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="initializationParams.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Source Files\Thread">
@@ -79,5 +82,8 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{55B5EDAA-28E2-40FA-BAFA-01EED013756B}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="log4cxxConfig.xml" />
   </ItemGroup>
 </Project>

@@ -12,15 +12,20 @@ FrameObject::FrameObject(){
 }
 
 FrameObject::~FrameObject(){
-	cvReleaseImage(&frame);
-	cvReleaseImage(&foregroundMask);
-	cvReleaseImage(&salientForegroundMask);
-	cvReleaseBlobs(frameBlobs);
-	list<DetectedObject*>::iterator i;
-	for(i=detectedObject.begin();i!=detectedObject.end(); i++){
-		(*i)->~_DetectedObject();
+	try{
+		cvReleaseImage(&frame);
+		cvReleaseImage(&foregroundMask);
+		cvReleaseImage(&salientForegroundMask);
+		cvReleaseBlobs(frameBlobs);
+		list<DetectedObject*>::iterator i;
+	
+		for(i=detectedObject.begin();i!=detectedObject.end(); i++){
+			(*i)->~_DetectedObject();
+		}
 	}
-	//detectedObject.clear();
+	catch(exception& e){
+		throw e.what();
+	}
 }
 
 FrameObject::FrameObject(IplImage * currentFrame, IplImage * currentBackground,IplImage *salient, int nFrame = 1){

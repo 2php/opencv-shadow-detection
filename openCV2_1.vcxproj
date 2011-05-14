@@ -78,11 +78,12 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">true</LinkIncremental>
     <SourcePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">c:\Development\cvblob\cvBlob;$(SourcePath)</SourcePath>
+    <ExecutablePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ExecutablePath)</ExecutablePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/Development/OpenCV2.1/include;C:/Development/OpenCV2.1/include/opencv;c:\Development\cvblob\cvBlob;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Development/OpenCV2.1/include;C:/Development/OpenCV2.1/include/opencv;c:\Development\cvblob\cvBlob;C:\Users\Paolo\Documents\Visual Studio 2010\Projects\Test\lib\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -105,8 +106,8 @@
     </Midl>
     <Link>
       <AdditionalOptions> /machine:x64 /debug %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;cxcore210d.lib;cv210d.lib;ml210d.lib;highgui210d.lib;cvaux210d.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Development/OpenCV2.1/VS2010/lib/Debug"";C:/Development/OpenCV2.1/VS2010/lib/Debug""/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;cxcore210d.lib;cv210d.lib;ml210d.lib;highgui210d.lib;cvaux210d.lib;log4cxx.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:/Development/OpenCV2.1/VS2010/lib/Debug"";C:/Development/OpenCV2.1/VS2010/lib/Debug""/$(Configuration);C:\Users\Paolo\Documents\Visual Studio 2010\Projects\Test\lib\apache-log4cxx-0.10.0\projects\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>C:/Users/Paolo/Documents/Visual Studio 2010/Projects/openCV2_1/Debug/openCV2_1.lib</ImportLibrary>
       <ProgramDataBaseFileName>C:/Users/Paolo/Documents/Visual Studio 2010/Projects/openCV2_1/Debug/openCV2_1.pdb</ProgramDataBaseFileName>
@@ -283,9 +284,15 @@ if errorlevel 1 goto VCReportError</Command>
     <ClInclude Include="..\..\..\..\..\..\Development\cvblob\cvBlob\cvblob.h" />
     <ClInclude Include="frameObject.h" />
     <ClInclude Include="gcptr.h" />
+    <ClInclude Include="initializationParams.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="shadow.h" />
     <ClInclude Include="ThreadPool.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="log4cxxConfig.xml">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

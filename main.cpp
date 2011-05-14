@@ -2,19 +2,34 @@
 #include "shadow.h"
 #include <process.h>
 #include "ThreadPool.h"
+#include "initializationParams.h"
+#include <log4cxx\logger.h>
+#include <log4cxx\xml\domconfigurator.h>
+#include <iostream>
 
-#define THREAD_NUM 30
-#define POOL 30
+#define POOL 400
 #define TL 15
-#define video "C:/Users/Paolo/Videos/prova12.avi"
+#define video "C:/Users/Paolo/Videos/3.avi"
+
+
+using namespace log4cxx;
+using namespace log4cxx::xml;
+using namespace log4cxx::helpers;
+using namespace std;
+
+
+LoggerPtr loggerDelivery(Logger::getLogger( "Delivery"));
+LoggerPtr loggerMain(Logger::getLogger( "main"));
 
 /*!
 //lista dei frame elaborati*/
 static list<FrameObject*> frame;
 static list<FrameObject> ordered;
 static vector<HANDLE> handle;
-static HANDLE mutex,newFrame;
-volatile long n;
+static HANDLE mutex,newFrame,started;
+volatile int size;
+CThreadPool threadPool = CThreadPool(POOL,TRUE,INFINITE);
+initializationParams initPar;
 
 void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 	IplImage *source = cvCloneImage(frame.getFrame());
@@ -120,11 +135,14 @@ DWORD WINAPI Thread(void* param)
 
 	//soggetto a errori se ancora non esiste l'handle su cui fa SetEvent
 	if(pa.threadNum == 0){
+		WaitForSingleObject(mutex,INFINITE);
 		list<FrameObject*>::iterator x;
 		for(x=myFrames.begin(); x != myFrames.end(); x++){
 			frame.push_back(dynamic_cast<FrameObject*>(*x));
+			
 		}
-
+		SetEvent(started);
+		ReleaseMutex(mutex);
 	}else{
 		WaitForSingleObject(handle.at(pa.threadNum),INFINITE);
 		WaitForSingleObject(mutex,INFINITE);
@@ -132,6 +150,7 @@ DWORD WINAPI Thread(void* param)
 		for(j=myFrames.begin(); j != myFrames.end(); j++){
 			frame.push_back(dynamic_cast<FrameObject*>(*j));
 		}
+		SetEvent(started);
 		ReleaseMutex(mutex);
 	}
 
@@ -150,67 +169,118 @@ bool nframeSorting ( FrameObject first, FrameObject second)
     else return false;
 }
 
-bool flag = TRUE;
-
 template <class T>
-string to_string(T t, int n)
+string to_string(T t, int n,bool saving = FALSE)
 {
   std::ostringstream oss;
-  oss << "frame_" << t << "_" << n << ".jpg";
+  if(saving) 
+	  oss << ".\\detected\\frame" << t << "_object" << n << ".jpg";
+  else oss << n << t;
   return oss.str();
 }
 
-void Delivery(void *param)
-{
-	while(TRUE){
-	WaitForSingleObject(mutex,INFINITE);
-	list<FrameObject*>::iterator j;
-	list<DetectedObject*>::iterator i;
-	list<DetectedObject*> det;
-
+DWORD WINAPI Delivery(void *param)
+{ 
+	DWORD wait;
+	int count = 1;
+	//Parametri delle immagini memorizzate su disco
 	int p[3];    
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
-	p[1] = 10;
+	p[1] = 90;
 	p[2] = 0;
+	
+	LOG4CXX_INFO(loggerDelivery, "Delivery thread started...");
+	WaitForSingleObject(started,INFINITE);
+	while(count <= size){
+		LOG4CXX_DEBUG(loggerDelivery,"Waiting for new frame list arrival...");
+		WaitForSingleObject(started,INFINITE);
+		wait = WaitForSingleObject(mutex,INFINITE);
+		LOG4CXX_DEBUG(loggerDelivery,"New frame list delivery process started.");
+		list<FrameObject*>::iterator j;
+		list<DetectedObject*>::iterator i;
+		list<DetectedObject*> det;
 
-	for(j=frame.begin(); j != frame.end(); j++){
-		det = (*j)->getDetectedObject();
-		int n = 0;
-		for(i=det.begin(); i != det.end(); ++i){
-			//reShadowing((*j),bgModel);
-			n++;
-			IplImage *frame=(*j)->getFrame();
-			IplImage *result=(*j)->getFrame();
-			IplImage *salient=(*j)->getSalientMask();
-			cvZero(result);
-			cvOr(frame,result,result,(*i)->mvoMask);
-			//cvShowImage("mvo",bgModel->background);			
-			cvSaveImage(to_string((*j)->getFrameNumber(),n).c_str(),result,p);
+		try{
+			for(j=frame.begin(); j != frame.end(); j++){
+				det = (*j)->getDetectedObject();
+				int n = 0;
+				for(i=det.begin(); i != det.end(); ++i){
+					//reShadowing((*j),bgModel);
+					n++;
+					IplImage *frame=(*j)->getFrame();
+					IplImage *result=(*j)->getFrame();
+					IplImage *salient=(*j)->getSalientMask();
+					cvZero(result);
+					cvOr(frame,result,result,(*i)->mvoMask);		
+					cvSaveImage(to_string((*j)->getFrameNumber(),n,TRUE).c_str(),result,p);
 
-			//cvShowImage("shadow",(*i)->shadowMask);
-			//cvShowImage("mvo",result);
-			//cvShowImage("frame",frame);
-			//cvShowImage("salient",salient);
-			//cvWaitKey(0);
-			cvReleaseImage(&salient);
-			cvReleaseImage(&frame);
-			cvReleaseImage(&result);
-	/*		delete (*j);*/
+					cvReleaseImage(&salient);
+					cvReleaseImage(&frame);
+					cvReleaseImage(&result);
+				}
+			}
+
+			for(j=frame.begin(); j != frame.end(); j++){
+				(*j)->~FrameObject();
+			}
+
+			LOG4CXX_DEBUG(loggerDelivery,to_string("# list processed correctly.",count));
+			count++;
 		}
+		catch(exception& e){
+			LOG4CXX_ERROR(loggerDelivery,e.what());
+		}
+
+		frame.clear();
+		ReleaseMutex(mutex);
 	}
 
-	//*********LE RIGHE INCRIMINATE...***********/
-	for(j=frame.begin(); j != frame.end(); j++){
-		(*j)->~FrameObject();
-	}
-	frame.clear();
-	ReleaseMutex(mutex);
-	}
+	LOG4CXX_INFO(loggerDelivery,to_string(" icompleted frame !!ATTENTION!!",count-1 - size));
+	threadPool.Destroy();
+	return 0;
 }
 
 int main ( int argc, char **argv )
 {
-int MAX_THREAD_NUM = 0;
+
+	DOMConfigurator::configure("Log4cxxConfig.xml");
+    LOG4CXX_TRACE(loggerMain, "debug message (detailed)");
+    LOG4CXX_DEBUG(loggerMain, "debug message");
+    LOG4CXX_INFO (loggerMain, "info message");
+    LOG4CXX_WARN (loggerMain, "warn message");
+    LOG4CXX_ERROR(loggerMain, "error message");
+    LOG4CXX_FATAL(loggerMain, "fatal message!!!");
+    
+	string response = "";
+
+	initPar =  _initializationParams();
+	cout << "DEFAULT PARAMS:\n\nTHRESHOLD: " << initPar.THRESHOLD << "\nK: " << initPar.K << "\nalfa: auto\nbeta: auto\nTh: auto\nTs: auto";
+
+	cout << "\n\nUse default settings? (y/n): ";
+	cin >> response;
+
+	if(response == "y")
+	{
+		cout << "\nDefault settings loaded"<<endl;
+	}else{
+		initPar.useDefault = 0;
+		cout << "\nDefine THREAD_NUM: ";
+		cin >> initPar.THREAD_NUM;
+		cout << "\nDefine THRESHOLD: ";
+		cin >> initPar.THRESHOLD;
+		cout << "Define alfa: ";
+		cin >> initPar.alfa;
+		cout << "Define beta: ";
+		cin >> initPar.beta;
+		cout << "Define Th: ";
+		cin >> initPar.Th;
+		cout << "Define Ts: ";
+		cin >> initPar.Ts;
+		cout << "Define K: ";
+		cin >> initPar.K;
+	}
+
+size = 10000000;
 mutex = CreateMutex(NULL,FALSE,NULL);
 //IplImage *bkg = cvLoadImage("C:/Users/Paolo/Pictures/sharp.jpg",1);
 //IplImage *test = cvLoadImage("C:/Users/Paolo/Pictures/test.png",1);
@@ -275,25 +345,24 @@ list<DetectedObject>::iterator i;
 list<DetectedObject> det;
 
 newFrame = CreateEvent(NULL,FALSE,FALSE,NULL);
-
-CThreadPool threadPool = CThreadPool(POOL,TRUE,INFINITE);
+started = CreateEvent(NULL,FALSE,FALSE,NULL);
 
 list<IplImage*>sal;
 list<IplImage*>list;
 
-MAX_THREAD_NUM = THREAD_NUM;
 int cicle_num = 0;
 int count=0;
 int first=0;
 int thread_num=0;
 int index;
 int flag = TRUE;
-_beginthread(Delivery,0,NULL);
-while(thread_num<MAX_THREAD_NUM && flag){
+threadPool.Run(Delivery,NULL,High);
+//_beginthread(Delivery,0,NULL);
+while(thread_num<initPar.THREAD_NUM && flag){
 	sal.clear();
 	list.clear();
 	first = count;
-	cicle_num = numOfTotalFrames/MAX_THREAD_NUM;
+	cicle_num = numOfTotalFrames/initPar.THREAD_NUM;
 	index=0;
 	flag = cvGrabFrame(capture);
 	while (cicle_num>=0 && flag){
@@ -313,19 +382,22 @@ while(thread_num<MAX_THREAD_NUM && flag){
 	/*Gestione coda degli handle*/
 	handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
 	/****************************/
-	threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
-	
-	if(thread_num%5==0 && thread_num !=0) 
+	threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal),Low);
+	//_beginthread((void)Thread,0,new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
+	if(thread_num%10==0 && thread_num !=0){ 
+		LOG4CXX_DEBUG(loggerMain,"w");
 		WaitForSingleObject(handle.at(thread_num-1),INFINITE);
+		LOG4CXX_DEBUG(loggerMain,"-w");
+	}	
 	thread_num++;
 /****************BLOB ANALYSIS*****************/
 ///////bisogna passare le maschere degli oggetti...
 
 }
 cvReleaseCapture(&capture);
-
 handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
 
+size = thread_num-1;
 WaitForSingleObject(handle.at(thread_num),INFINITE);
 //threadPool.CheckThreadStop();
 
@@ -348,7 +420,8 @@ WaitForSingleObject(handle.at(thread_num),INFINITE);
 	//	cvShowImage("",(*j).getForegroundMask());
 	//		cvWaitKey(10);
 	//}
-while(flag){}
+while(TRUE) {}
+//WAIT_CHILD;
 return 0;
 }
 
