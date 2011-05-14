@@ -266,12 +266,21 @@ int main ( int argc, char **argv )
 		initPar.useDefault = 0;
 		cout << "\nDefine THREAD_NUM: ";
 		cin >> initPar.THREAD_NUM;
-		cout << "\nDefine THRESHOLD: ";
-		cin >> initPar.THRESHOLD;
-		cout << "Define alfa: ";
-		cin >> initPar.alfa;
-		cout << "Define beta: ";
-		cin >> initPar.beta;
+		//threshold deve essere compreso tra 0 e 250
+		do{
+			cout << "\nDefine THRESHOLD con un valore compreso tra 0 e 250: ";//0 250
+			cin >> initPar.THRESHOLD;
+		}while(initPar.THRESHOLD<250 && initPar.THRESHOLD>0);
+		//alfa deve essere compreso tra 0 e 1
+		do{
+			cout << "Define alfacon un valore compreso tra 0 e 1: "; 
+			cin >> initPar.alfa;
+		}while(initPar.alfa>0 && initPar.alfa<1);
+		//beta deve essere compreso tra 0 e 1, inoltre deve essere maggiore di alfa
+		do {
+			cout << "Define beta con un valore compreso tra 0 e 1: "; 
+			cin >> initPar.beta;
+		}while (initPar.beta>0 && initPar.beta<1 && initPar.alfa<initPar.beta);
 		cout << "Define Th: ";
 		cin >> initPar.Th;
 		cout << "Define Ts: ";
