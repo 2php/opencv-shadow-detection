@@ -17,7 +17,7 @@ typedef struct _initializationParams {
 		float K;
    // costruttore della struttura
         _initializationParams() : 
-        useDefault(1),THRESHOLD(DEFAULT_THRESHOLD),K(DEFAULT_K),THREAD_NUM(DEFAULT_THREAD_NUM){ }
+        useDefault(1),THRESHOLD(DEFAULT_THRESHOLD),K(DEFAULT_K),THREAD_NUM(DEFAULT_THREAD_NUM),alfa(0.2),beta(0.9){ }
   }initializationParams;
 
 //extern struct initializationParams;

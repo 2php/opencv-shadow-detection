@@ -1,6 +1,6 @@
 //#include "shadow.h"
 #include "frameObject.h"
-#define TH 30
+//#define TH 30
 #define TL 10
 
 FrameObject::FrameObject(){
@@ -45,13 +45,13 @@ IplImage* FrameObject::getForegroundMask(){return cvCloneImage(foregroundMask);}
 IplImage* FrameObject::getSalientMask(){return cvCloneImage(salientForegroundMask);}
 int FrameObject::getFrameNumber(){return frameNumber;}
 
-void FrameObject::detectAll(){
+void FrameObject::detectAll(initializationParams initPar){
 		IplImage * img =  getFrame();
 		IplImage * background = getBackground();
 		DetectedObject *temp = new DetectedObject(size,img->depth);
 		
 		//cameraCorrection(img,img,MEDIAN,1.1,5);
-		
+		double TH = initPar.THRESHOLD;
 		//rimuovo il background, ottengo la maschera del foreground
 		backgroundSuppression(img,background,this->foregroundMask);
 		//cvThreshold(this->foregroundMask,this->salientForegroundMask,TL,255,CV_THRESH_BINARY);
@@ -81,7 +81,7 @@ void FrameObject::detectAll(){
 
 			cvCvtColor(src,temp->totalMask,CV_RGB2GRAY);
 			//maschera dell'ombra
-			shadowDetection(img,background,temp->totalMask,temp->shadowMask);
+			shadowDetection(img,background,temp->totalMask,temp->shadowMask,initPar);
 			//maschera invertita dell'ombra
 			cvThreshold(temp->shadowMask,temp->invertedShadowMask,120,255,CV_THRESH_BINARY_INV);
 			//and tra la maschera del foreground e la maschera invertita dell'ombra

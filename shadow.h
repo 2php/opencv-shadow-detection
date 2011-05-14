@@ -23,7 +23,7 @@ using namespace std;
 //Prototipi
 //void cameraCorrection(IplImage* src,IplImage* dst,int typez= MEDIAN, double A=1.1, int size = 5);  //con paramtri di default non compila
 void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size);
-void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSelection,IplImage *result);
+void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSelection,IplImage *result,initializationParams initPar);
 void backgroundSuppression(IplImage *src, IplImage *background,IplImage *result);
 void blobAnalysis(IplImage *imgA, IplImage *imgB);
 //IplImage* reShadowing(FrameObject frame, IplImage *background);

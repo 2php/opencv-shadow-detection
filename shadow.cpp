@@ -146,14 +146,11 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 //	@param[in] foreground selection The mask (binary image) that limit the area of the shadow detection process
 //	@param[out] result a mask that rappresent the shadow
 */
-void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSelection,IplImage *result){
-	const float K = 0;
+void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSelection,IplImage *result,initializationParams initPar){
+	float K = initPar.K;
 	double Th,Ts;
 	double alfa, beta;
-	alfa=0.2f;
-	beta=0.9f;
-	double Th1=-1000000;
-	double Ts1=-100000003;
+
 	LOG4CXX_TRACE(loggershadowDetection, "Shadow Detection started....");
 
 	try{
@@ -177,6 +174,8 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		LOG4CXX_DEBUG(loggershadowDetection, "Conversion to HSV");
 		//cvCvtColor(dst,dst,CV_BGR2HSV);
 	
+
+	if(initPar.useDefault == 1){
 		IplImage *temp,*Dbkg;
 		Dbkg=cvCloneImage(hsv);
 		cvZero(Dbkg);
@@ -197,6 +196,13 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		LOG4CXX_DEBUG(loggershadowDetection, "Param Define conclused");
 		cvReleaseImage(&Dbkg);
 		cvReleaseImage(&temp);
+	}else{
+		alfa = initPar.alfa;
+		beta = initPar.beta;
+		Th = initPar.Th;
+		Ts = initPar.Ts;
+	}
+
 	//	Ts=20;
 
 		//temp=cvCloneImage(hsv);

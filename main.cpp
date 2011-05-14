@@ -7,7 +7,7 @@
 
 #define POOL 30
 #define TL 15
-#define video "c:/users/paolo/videos/3.avi"
+#define video "c:/users/paolo/videos/prova12.avi"
 
 LoggerPtr loggerDelivery(Logger::getLogger( "Delivery"));
 LoggerPtr loggerMain(Logger::getLogger( "main"));
@@ -163,7 +163,7 @@ DWORD WINAPI Thread(void* param)
 	for(j=pa.frameList.begin(),s=pa.salient.begin(); j != pa.frameList.end(), s != pa.salient.end(); j++,s++){
 		temp = new FrameObject((*j),pa.background, (*s),count);
 		count++;
-		temp->detectAll();
+		temp->detectAll(initPar);
 		if(thread_saving==TRUE){
 			LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
 			SaveDetectedToImage(temp);

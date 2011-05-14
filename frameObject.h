@@ -3,6 +3,7 @@
 #include <cv.h>
 #include <list>
 #include "shadow.h"
+#include "initializationParams.h"
 
 using namespace std;
 
@@ -102,7 +103,7 @@ public:
 	int getFrameNumber();
 	/*!
 	//esegue il detecting di tutti gli oggetti nella scena e ne salva Mvo e shadow nella lista detectedObject*/
-	void detectAll();
+	void detectAll(initializationParams initPar);
 	/*!
 	//ritorna la lista degli ogetti trovati nella scena*/
 	list<DetectedObject*> getDetectedObject();
