@@ -28,7 +28,7 @@ LoggerPtr loggerThread(Logger::getLogger( "Thread"));
 static list<FrameObject*> frame;
 static list<FrameObject> ordered;
 static vector<HANDLE> handle;
-static HANDLE mutex,handMutex,started;
+static HANDLE mutex,started;
 volatile int size;
 bool thread_saving;
 
@@ -177,25 +177,30 @@ DWORD WINAPI Thread(void* param)
 		if(thread_saving==TRUE){
 			LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
 			SaveDetectedToImage(temp);
+			temp->~FrameObject();
 		}
 		else{	
 			myFrames.push_back(dynamic_cast<FrameObject*>(temp));
 		}
  	}
-
 	if(thread_saving==TRUE) {
 		LOG4CXX_INFO(loggerThread,to_string("Stopping thread ",pa.threadNum));	
-		WaitForSingleObject(handMutex,INFINITE);
-		if(handle.size() > pa.threadNum+1){
-			LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " set event to "<< pa.threadNum+1);
-			SetEvent(handle.at(pa.threadNum+1));
+		int repeat = 0;
+		while(TRUE && repeat<10){
+			if(handle.size() > pa.threadNum+1) break;
+			Sleep(500);
+			repeat++;
 		}
-		ReleaseMutex(handMutex);
+
+		if(handle.size() < pa.threadNum+1) return 0;
+		
+		LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " set event to "<< pa.threadNum+1);
+		SetEvent(handle.at(pa.threadNum+1));
 		return 0;
 	}
 	LOG4CXX_INFO(loggerThread,"Thread n# "<< pa.threadNum << " -> Prepare to accode frame for delivery service");
 	//soggetto a errori se ancora non esiste l'handle su cui fa SetEvent
-	if(pa.threadNum != 0){
+	if(pa.threadNum%10 != 0){
 		LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " waiting previous thread completition");
 		WaitForSingleObject(handle.at(pa.threadNum),INFINITE);
 		LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " previous thread completition success");
@@ -213,12 +218,11 @@ DWORD WINAPI Thread(void* param)
 	SetEvent(started);
 	ReleaseMutex(mutex);
 	LOG4CXX_INFO(loggerThread,"Thread n# " << pa.threadNum << ": " << suc << " on "<< pa.frameList.size() << " accoded");
-	WaitForSingleObject(handMutex,INFINITE);
-	if(handle.size() > pa.threadNum+1){
-		LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " set event to "<< pa.threadNum+1);
-		SetEvent(handle.at(pa.threadNum+1));
-	}
-	ReleaseMutex(handMutex);
+	while(TRUE){
+			if(handle.size() > pa.threadNum+1) break;	
+		}
+	LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " set event to "<< pa.threadNum+1);
+	SetEvent(handle.at(pa.threadNum+1));
 	return 0;
 }
 
@@ -267,9 +271,7 @@ DWORD WINAPI Delivery(void *param)
 	}
 	if((count-1 - size) != 0)
 		LOG4CXX_WARN(loggerDelivery,"!!ATTENTION!! " << count-1 - size <<  "icompleted frame" );
-	WaitForSingleObject(handMutex,INFINITE);
 	SetEvent(handle.at(0));
-	ReleaseMutex(handMutex);
 	return 0;
 }
 
@@ -308,17 +310,17 @@ int main ( int argc, char **argv )
 		do{
 			cout << "\nDefine THRESHOLD con un valore compreso tra 0 e 250: ";//0 250
 			cin >> initPar.THRESHOLD;
-		}while(initPar.THRESHOLD<250 && initPar.THRESHOLD>0);
+		}while(initPar.THRESHOLD>250 && initPar.THRESHOLD<0);
 		//alfa deve essere compreso tra 0 e 1
 		do{
 			cout << "Define alfacon un valore compreso tra 0 e 1: "; 
 			cin >> initPar.alfa;
-		}while(initPar.alfa>0 && initPar.alfa<1);
+		}while(initPar.alfa<0 && initPar.alfa>1);
 		//beta deve essere compreso tra 0 e 1, inoltre deve essere maggiore di alfa
 		do {
 			cout << "Define beta con un valore compreso tra 0 e 1: "; 
 			cin >> initPar.beta;
-		}while (initPar.beta>0 && initPar.beta<1 && initPar.alfa<initPar.beta);
+		}while (initPar.beta<0 && initPar.beta>1 && initPar.alfa>initPar.beta);
 		cout << "Define Th: ";
 		cin >> initPar.Th;
 		cout << "Define Ts: ";
@@ -377,7 +379,7 @@ const int numOfTotalFrames = (int) cvGetCaptureProperty( capture , CV_CAP_PROP_F
 CvBGStatModel* bgModel = cvCreateFGDStatModel(img,para);
 cvUpdateBGStatModel(img,bgModel);
 //Crea un modello del backgroud
-for(;nframe<5000;nframe++){
+for(;nframe<1;nframe++){
 	cvGrabFrame(capture);
 	img = cvRetrieveFrame(capture);
 	//cameraCorrection(img,img,MEDIAN,1.1,5);
@@ -389,7 +391,6 @@ for(;nframe<5000;nframe++){
 list<DetectedObject>::iterator i;
 list<DetectedObject> det;
 
-handMutex = CreateMutex(NULL,FALSE,NULL);
 started = CreateEvent(NULL,FALSE,FALSE,NULL);
 
 list<IplImage*>sal;
@@ -425,15 +426,13 @@ while(thread_num<initPar.THREAD_NUM && flag){
 	}	
 	/*******MULTITHREAD**********/
 	/*Gestione coda degli handle*/
-	WaitForSingleObject(handMutex,INFINITE);
 	handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
-	ReleaseMutex(handMutex);
 	/****************************/
 	threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal),Low);
 	//_beginthread((void)Thread,0,new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
 	if(thread_num%10==0 && thread_num !=0){ 
 		LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (LOCK): waiting previous thread completition (thread n# "<<thread_num<<"");
-		WaitForSingleObject(handle.at(thread_num-1),INFINITE);
+		WaitForSingleObject(handle.at(thread_num),INFINITE);
 		LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (UNLOCK): continuing execution...");
 	}	
 	thread_num++;
@@ -442,9 +441,7 @@ while(thread_num<initPar.THREAD_NUM && flag){
 
 }
 cvReleaseCapture(&capture);
-WaitForSingleObject(handMutex,INFINITE);
 handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
-ReleaseMutex(handMutex);
 
 size = thread_num-1;
 WaitForSingleObject(handle.at(thread_num),INFINITE);
