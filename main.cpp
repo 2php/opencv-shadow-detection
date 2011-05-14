@@ -294,23 +294,28 @@ int main ( int argc, char **argv )
 		cout << "\nDefault settings loaded"<<endl;
 	}else{
 		initPar.useDefault = 0;
+		cout << "\nWould you disable Delivery service? (y/n): ";
+		cin >> response;
+
+		if(response == "y")	thread_saving=TRUE;
+
 		cout << "\nDefine THREAD_NUM: ";
 		cin >> initPar.THREAD_NUM;
 		//threshold deve essere compreso tra 0 e 250
 		do{
 			cout << "\nDefine THRESHOLD con un valore compreso tra 0 e 250: ";//0 250
 			cin >> initPar.THRESHOLD;
-		}while(initPar.THRESHOLD>250 && initPar.THRESHOLD<0);
+		}while(initPar.THRESHOLD>250 || initPar.THRESHOLD<0);
 		//alfa deve essere compreso tra 0 e 1
 		do{
-			cout << "Define alfacon un valore compreso tra 0 e 1: "; 
+			cout << "Define alfa con un valore compreso tra 0 e 1: "; 
 			cin >> initPar.alfa;
-		}while(initPar.alfa<0 && initPar.alfa>1);
+		}while(initPar.alfa<0 || initPar.alfa>1);
 		//beta deve essere compreso tra 0 e 1, inoltre deve essere maggiore di alfa
 		do {
 			cout << "Define beta con un valore compreso tra 0 e 1: "; 
 			cin >> initPar.beta;
-		}while (initPar.beta<0 && initPar.beta>1 && initPar.alfa>initPar.beta);
+		}while (initPar.beta<0 || initPar.beta>1 || initPar.alfa>initPar.beta);
 		cout << "Define Th: ";
 		cin >> initPar.Th;
 		cout << "Define Ts: ";
