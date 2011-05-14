@@ -28,11 +28,18 @@ typedef struct _DetectedObject
 	//Blobs dell'mvo*/	
 	CvBlobs mvoBlobs;
 	_DetectedObject(CvSize size,int depth){
+		try{
 		totalMask = cvCreateImage(size,depth,1);				
 		mvoMask = cvCreateImage(size,depth,1);		
 		shadowMask = cvCreateImage(size,depth,1);
 		invertedShadowMask = cvCreateImage(size,depth,1);
 		mvoBlobs = CvBlobs();
+		}
+		catch(exception& e)
+		{
+			throw e.what();
+		
+		}
 	}
 	
 	virtual ~_DetectedObject(){
