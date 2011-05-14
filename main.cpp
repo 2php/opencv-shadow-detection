@@ -2,22 +2,12 @@
 #include "shadow.h"
 #include <process.h>
 #include "ThreadPool.h"
-#include "initializationParams.h"
-#include <log4cxx\logger.h>
-#include <log4cxx\xml\domconfigurator.h>
 #include <iostream>
 #include <string>
 
 #define POOL 30
 #define TL 15
 #define video "c:/users/paolo/videos/3.avi"
-
-
-using namespace log4cxx;
-using namespace log4cxx::xml;
-using namespace log4cxx::helpers;
-using namespace std;
-
 
 LoggerPtr loggerDelivery(Logger::getLogger( "Delivery"));
 LoggerPtr loggerMain(Logger::getLogger( "main"));

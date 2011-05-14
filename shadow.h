@@ -6,8 +6,15 @@
 #include <iostream>
 #include <cvblob.h>
 #include <math.h>
+#include "initializationParams.h"
+#include <log4cxx\logger.h>
+#include <log4cxx\xml\domconfigurator.h>
 
 using namespace cvb;
+using namespace log4cxx;
+using namespace log4cxx::xml;
+using namespace log4cxx::helpers;
+using namespace std;
 
 #define MEDIAN 21
 #define HIGH_BOOST 33
