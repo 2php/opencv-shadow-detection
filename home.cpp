@@ -264,32 +264,31 @@ void Start ()
 	p[1] = 90;
 	p[2] = 0;
 	thread_saving = initPar.thread_saving;
-	string video_path = "";
-size = 10000000;
-mutex = CreateMutex(NULL,FALSE,NULL);
-//IplImage *bkg = cvLoadImage("C:/Users/Paolo/Pictures/sharp.jpg",1);
-//IplImage *test = cvLoadImage("C:/Users/Paolo/Pictures/test.png",1);
-IplImage *img = NULL;
-list<IplImage*>::iterator it;
+	string video_path = video;
+	size = 10000000;
+	mutex = CreateMutex(NULL,FALSE,NULL);
+	//IplImage *bkg = cvLoadImage("C:/Users/Paolo/Pictures/sharp.jpg",1);
+	//IplImage *test = cvLoadImage("C:/Users/Paolo/Pictures/test.png",1);
+	IplImage *img = NULL;
+	list<IplImage*>::iterator it;
 
-CvFGDStatModelParams* para = new CvFGDStatModelParams;
- para->alpha1=0.1f;
- para->alpha2=0.005f;
- para->alpha3=0.1f;
- para->delta=2;
- para->is_obj_without_holes=TRUE;
- para->Lc=128;
- para->Lcc=64;
- para->minArea=15.f;
- para->N1c=15;
- para->N1cc=25;
- para->N2c=25;
- para->N2cc=40;
- para->perform_morphing=1;
- para->T=0.9f;
+	CvFGDStatModelParams* para = new CvFGDStatModelParams;
+	 para->alpha1=0.1f;
+	 para->alpha2=0.005f;
+	 para->alpha3=0.1f;
+	 para->delta=2;
+	 para->is_obj_without_holes=TRUE;
+	 para->Lc=128;
+	 para->Lcc=64;
+	 para->minArea=15.f;
+	 para->N1c=15;
+	 para->N1cc=25;
+	 para->N2c=25;
+	 para->N2cc=40;
+	 para->perform_morphing=1;
+	 para->T=0.9f;
 
-
-    CvCapture* capture = cvCaptureFromAVI(video);
+	 CvCapture* capture = cvCaptureFromAVI(video_path.c_str());
 
 	while( !capture )
     {
@@ -299,108 +298,110 @@ CvFGDStatModelParams* para = new CvFGDStatModelParams;
 		capture = cvCaptureFromAVI(video_path.c_str());
     }
 
-int nframe = 0;
-cvGrabFrame(capture);
-img = cvCloneImage(cvRetrieveFrame(capture));
-const int numOfTotalFrames = (int) cvGetCaptureProperty( capture , CV_CAP_PROP_FRAME_COUNT );
-//cameraCorrection(img,img,MEDIAN,1.1,5);
-
-CvBGStatModel* bgModel = cvCreateFGDStatModel(img,para);
-cvUpdateBGStatModel(img,bgModel);
-//Crea un modello del backgroud
-LOG4CXX_INFO(loggerMain,"Apprendimento background...");
-for(;nframe<cicle_background;nframe++){
+	int nframe = 0;
 	cvGrabFrame(capture);
-	img = cvRetrieveFrame(capture);
+	img = cvCloneImage(cvRetrieveFrame(capture));
+	const int numOfTotalFrames = (int) cvGetCaptureProperty( capture , CV_CAP_PROP_FRAME_COUNT );
 	//cameraCorrection(img,img,MEDIAN,1.1,5);
-	if(nframe%10==0){
+
+	CvBGStatModel* bgModel = cvCreateFGDStatModel(img,para);
 	cvUpdateBGStatModel(img,bgModel);
-	cout << ".";
-	}
-}
-LOG4CXX_INFO(loggerMain,"Modello del background creato correttamente");
-list<DetectedObject>::iterator i;
-list<DetectedObject> det;
-
-started = CreateEvent(NULL,FALSE,FALSE,NULL);
-
-list<IplImage*>sal;
-list<IplImage*>list;
-
-int cicle_num = 0;
-int count=0;
-int first=0;
-int thread_num=0;
-int index;
-int flag = TRUE;
-threadPool.Run(Delivery,NULL,High);
-//_beginthread(Delivery,0,NULL);
-while(thread_num<initPar.THREAD_NUM && flag){
-	sal.clear();
-	list.clear();
-	first = count;
-	cicle_num = numOfTotalFrames/initPar.THREAD_NUM;
-	index=0;
-	flag = cvGrabFrame(capture);
-	while (cicle_num>=0 && flag){
+	//Crea un modello del backgroud
+	LOG4CXX_INFO(loggerMain,"Apprendimento background...");
+	for(;nframe<cicle_background;nframe++){
+		cvGrabFrame(capture);
 		img = cvRetrieveFrame(capture);
-		if(index%10==0) {
-			if(cicle_background != 1)
-				cvUpdateBGStatModel(img,bgModel);
-			cameraCorrection(img,img,MEDIAN,1.1,5);
-			list.push_back(cvCloneImage(img));
-			cicle_num--;
-			count++;			
-			sal.push_back(cvCloneImage(bgModel->foreground));
+		//cameraCorrection(img,img,MEDIAN,1.1,5);
+		if(nframe%10==0){
+		cvUpdateBGStatModel(img,bgModel);
+		cout << ".";
 		}
-		index++;
+	}
+	LOG4CXX_INFO(loggerMain,"Modello del background creato correttamente");
+	list<DetectedObject>::iterator i;
+	list<DetectedObject> det;
+
+	started = CreateEvent(NULL,FALSE,FALSE,NULL);
+
+	list<IplImage*>sal;
+	list<IplImage*>list;
+
+	int cicle_num = 0;
+	int count=0;
+	int first=0;
+	int thread_num=0;
+	int index;
+	int flag = TRUE;
+	threadPool.Run(Delivery,NULL,High);
+	//_beginthread(Delivery,0,NULL);
+	while(thread_num<initPar.THREAD_NUM && flag){
+		sal.clear();
+		list.clear();
+		first = count;
+		cicle_num = numOfTotalFrames/initPar.THREAD_NUM;
+		index=0;
 		flag = cvGrabFrame(capture);
-	}	
-	/*******MULTITHREAD**********/
-	/*Gestione coda degli handle*/
+		while (cicle_num>=0 && flag){
+			img = cvRetrieveFrame(capture);
+			if(index%10==0) {
+				if(cicle_background != 1)
+					cvUpdateBGStatModel(img,bgModel);
+				cameraCorrection(img,img,MEDIAN,1.1,5);
+				list.push_back(cvCloneImage(img));
+				cicle_num--;
+				count++;			
+				sal.push_back(cvCloneImage(bgModel->foreground));
+			}
+			index++;
+			flag = cvGrabFrame(capture);
+		}	
+		/*******MULTITHREAD**********/
+		/*Gestione coda degli handle*/
+		handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
+		/****************************/
+		threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal),Low);
+		//_beginthread((void)Thread,0,new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
+		if(thread_num%10==0 && thread_num !=0){ 
+			LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (LOCK): waiting previous thread completition (thread n# "<<thread_num<<"");
+			WaitForSingleObject(handle.at(thread_num),INFINITE);
+			LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (UNLOCK): continuing execution...");
+		}	
+		thread_num++;
+	/****************BLOB ANALYSIS*****************/
+	///////bisogna passare le maschere degli oggetti...
+
+	}
+	cvReleaseCapture(&capture);
 	handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
-	/****************************/
-	threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal),Low);
-	//_beginthread((void)Thread,0,new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
-	if(thread_num%10==0 && thread_num !=0){ 
-		LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (LOCK): waiting previous thread completition (thread n# "<<thread_num<<"");
-		WaitForSingleObject(handle.at(thread_num),INFINITE);
-		LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (UNLOCK): continuing execution...");
-	}	
-	thread_num++;
-/****************BLOB ANALYSIS*****************/
-///////bisogna passare le maschere degli oggetti...
 
-}
-cvReleaseCapture(&capture);
-handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
+	size = thread_num-1;
+	WaitForSingleObject(handle.at(thread_num),INFINITE);
+	//threadPool.CheckThreadStop();
 
-size = thread_num-1;
-WaitForSingleObject(handle.at(thread_num),INFINITE);
-//threadPool.CheckThreadStop();
+	/****************Reshadowing*****************/
 
-/****************Reshadowing*****************/
+	/****blobanalysis****/
+	//int iu=0;
+	//list<FrameObject>::iterator j,prev;
+	//	for(j=frame.begin(); j != frame.end(); ++j){
+	//		iu++;
+	//		if((iu%2)==0){
+	//			prev=j;
+	//			prev--;
+	//			blobAnalysis((*j).getForegroundMask(),(*prev).getForegroundMask());
+	//		}
+	//	}
 
-/****blobanalysis****/
-//int iu=0;
-//list<FrameObject>::iterator j,prev;
-//	for(j=frame.begin(); j != frame.end(); ++j){
-//		iu++;
-//		if((iu%2)==0){
-//			prev=j;
-//			prev--;
-//			blobAnalysis((*j).getForegroundMask(),(*prev).getForegroundMask());
-//		}
-//	}
-
-	//list<FrameObject>::iterator j;
-	//for(j=frame.begin(); j != frame.end(); ++j){
-	//	cvShowImage("",(*j).getForegroundMask());
-	//		cvWaitKey(10);
-	//}
-if(thread_saving==FALSE)
-	WaitForSingleObject(handle.at(0),INFINITE);
-LOG4CXX_INFO(loggerMain,"Chisura applicazione...")
-//threadPool.Destroy();
+		//list<FrameObject>::iterator j;
+		//for(j=frame.begin(); j != frame.end(); ++j){
+		//	cvShowImage("",(*j).getForegroundMask());
+		//		cvWaitKey(10);
+		//}
+	if(thread_saving==FALSE)
+		WaitForSingleObject(handle.at(0),INFINITE);
+	LOG4CXX_INFO(loggerMain,"Elaborazione video " << video_path << " terminata.");
+	cout << "Press any key to continue...";
+	cin >> video_path;
+	//threadPool.Destroy();
 }
 

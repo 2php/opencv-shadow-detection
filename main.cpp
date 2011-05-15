@@ -59,6 +59,8 @@ void shodowThresholdMenu(){
 
 int ParameterMenu(){
 	int res;
+	string u;
+
 	while(TRUE){	
 		ClearScreen();
 		cout << "Parameter Menu:";
@@ -91,8 +93,9 @@ int ParameterMenu(){
 					cout << "Delivery enabled";
 				}else{
 					initPar.thread_saving=TRUE;
-					cout << "Delivery diabled";
+					cout << "Delivery disabled";
 				}
+				cin >> u;
 				break;
 			case 5: 
 				do{
