@@ -255,7 +255,7 @@ DWORD WINAPI Delivery(void *param)
 	return 0;
 }
 
-void Start ()
+void Start (initializationParams par, string path)
 {
 	CThreadPool threadPool = CThreadPool(initPar.POOL,TRUE,INFINITE);	
 	int cicle_background = initPar.cicle_background;
@@ -263,8 +263,9 @@ void Start ()
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
 	p[1] = 90;
 	p[2] = 0;
+	initPar=par;
 	thread_saving = initPar.thread_saving;
-	string video_path = video;
+	string video_path = path;
 	size = 10000000;
 	mutex = CreateMutex(NULL,FALSE,NULL);
 	//IplImage *bkg = cvLoadImage("C:/Users/Paolo/Pictures/sharp.jpg",1);

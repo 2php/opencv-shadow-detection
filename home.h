@@ -6,7 +6,6 @@
 #include <string>
 
 #define TL 15
-#define video "c:/users/paolo/videos/prova12.avi"
 
 static initializationParams initPar;
-void Start();
+void Start(initializationParams par,string path);

@@ -1,6 +1,7 @@
 #include "home.h"
 
 LoggerPtr loggerConsole(Logger::getLogger( "Console"));
+string videoPath;
 
 void ClearScreen(){
   HANDLE                     hStdOut;
@@ -125,11 +126,12 @@ int HomeMenu(){
 	cout << "*-----------------------------------------------------------------------------*" << endl;
 	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
 	cout << "*******************************************************************************" << endl;
-	cout << " -DEFAULT PARAMS----------------------------------------------------" << endl;	
+	cout << "\n -DEFAULT PARAMS----------------------------------------------------" << endl;	
 	cout << "| background training: 1 frame | Delivery service: OFF              |" << endl;
 	cout << "| background threshold: " << initPar.THRESHOLD << "                                          |" << endl;
 	cout << "| K: " << initPar.K << " | alfa: auto |  beta: auto | Th: auto | Ts: auto \t    |"<<endl;
 	cout << " -------------------------------------------------------------------" << endl;		
+	cout << "\n Stream: "<< videoPath << endl;	
 	cout << "\n1 - START"<< endl;
 	cout << "2 - Set video path"<< endl;
 	cout << "3 - Change parameter" << endl;
@@ -141,19 +143,20 @@ int HomeMenu(){
 
 int main ( int argc, char **argv ){
 	string response = "";
+	videoPath = "c:/users/paolo/videos/prova12.avi";
 	DOMConfigurator::configure("Log4cxxConfig.xml");
-	initPar =  _initializationParams();
+	initPar =  initializationParams();
 	int res;
 
 	while(TRUE){
 		res=HomeMenu();
 		switch(res){
 			case 1: 
-				Start();
+				Start(initPar,videoPath);
 				break;
 			case 2:
-				cout << "Insert video path: DISABLED";
-				//cin >> initPar.videoPath;
+				cout << "Insert video path: (current path: " << videoPath << ")"<<endl;
+				cin >> videoPath;
 				break;
 			case 3: 
 				ParameterMenu();

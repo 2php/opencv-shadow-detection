@@ -19,7 +19,7 @@
 
   <appender name="ChainsawAppenderXML" class="org.apache.log4j.XMLSocketAppender">
     <param name="RemoteHost" value="127.0.0.1"/>
-    <param name="Port" value="4445" />
+    <param name="Port" value="4448" />
     <layout class="org.apache.log4j.xml.XMLLayout">
       <param name="properties" value="true" />
       <param name="locationinfo" value="true" />

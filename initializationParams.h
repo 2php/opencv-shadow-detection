@@ -1,8 +1,8 @@
+#include <iostream>
+#include <string>
+
 #ifndef _initializationParams_h
 #define _initializationParams_h
-
-#include <iostream>
-#include <string.h>
 
 #define DEFAULT_THRESHOLD 30
 #define DEFAULT_K 10
@@ -21,7 +21,7 @@ typedef struct _initializationParams {
 		int Delta;
 		int cicle_background;
 		bool thread_saving;
-		string videoPath;
+		//string videoPath;
    // costruttore della struttura
         _initializationParams() : 
 			useDefault(1),
