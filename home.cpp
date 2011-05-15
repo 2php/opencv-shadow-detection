@@ -12,6 +12,7 @@ static vector<HANDLE> handle;
 static HANDLE mutex,started;
 volatile int size;
 bool thread_saving;
+int gap;
 
 //Parametri delle immagini memorizzate su disco
 int p[3];    	
@@ -147,9 +148,10 @@ DWORD WINAPI Thread(void* param)
 	int count = pa.numOfFirstFrame;
 	list<IplImage*>::iterator j;
 	list<IplImage*>::iterator s;
+
+	LOG4CXX_INFO(loggerThread,"Thread "<< pa.threadNum << " started");	
 	cameraCorrection(pa.background,pa.background,MEDIAN,1.1,5);
 	
-	LOG4CXX_INFO(loggerThread,to_string("Thread ", pa.threadNum));
 	for(j=pa.frameList.begin(),s=pa.salient.begin(); j != pa.frameList.end(), s != pa.salient.end(); j++,s++){
 		temp = new FrameObject((*j),pa.background, (*s),count);
 		count++;
@@ -164,7 +166,7 @@ DWORD WINAPI Thread(void* param)
 		}
  	}
 	if(thread_saving==TRUE) {
-		LOG4CXX_INFO(loggerThread,to_string("Stopping thread ",pa.threadNum));	
+		LOG4CXX_INFO(loggerThread,"Stopping thread " << pa.threadNum);	
 		int repeat = 0;
 		while(TRUE && repeat<10){
 			if(handle.size() > pa.threadNum+1) break;
@@ -178,9 +180,9 @@ DWORD WINAPI Thread(void* param)
 		SetEvent(handle.at(pa.threadNum+1));
 		return 0;
 	}
-	LOG4CXX_INFO(loggerThread,"Thread n# "<< pa.threadNum << " -> Prepare to accode frame for delivery service");
+	LOG4CXX_DEBUG(loggerThread,"Thread n# "<< pa.threadNum << " -> Prepare to accode frame for delivery service");
 	//soggetto a errori se ancora non esiste l'handle su cui fa SetEvent
-	if(pa.threadNum%10 != 0){
+	if(pa.threadNum%gap != 0){
 		LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " waiting previous thread completition");
 		WaitForSingleObject(handle.at(pa.threadNum),INFINITE);
 		LOG4CXX_DEBUG(loggerThread,"Thread n# " << pa.threadNum << " previous thread completition success");
@@ -257,7 +259,9 @@ DWORD WINAPI Delivery(void *param)
 
 void Start (initializationParams par, string path)
 {
+
 	CThreadPool threadPool = CThreadPool(initPar.POOL,TRUE,INFINITE);	
+	gap=initPar.gap;
 	int cicle_background = initPar.cicle_background;
 	//parametri salvataggio immaggini
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
@@ -318,6 +322,7 @@ void Start (initializationParams par, string path)
 		cout << ".";
 		}
 	}
+	cout << endl;
 	LOG4CXX_INFO(loggerMain,"Modello del background creato correttamente");
 	list<DetectedObject>::iterator i;
 	list<DetectedObject> det;
@@ -344,7 +349,7 @@ void Start (initializationParams par, string path)
 		flag = cvGrabFrame(capture);
 		while (cicle_num>=0 && flag){
 			img = cvRetrieveFrame(capture);
-			if(index%10==0) {
+			if(index%gap==0) {
 				if(cicle_background != 1)
 					cvUpdateBGStatModel(img,bgModel);
 				cameraCorrection(img,img,MEDIAN,1.1,5);

@@ -3,6 +3,7 @@
   <!-- Output the log message to system console.-->
   <appender name="appxConsoleAppender" class="org.apache.log4j.ConsoleAppender">
     <param name="Target" value="System.out"/>
+    <param name="Threshold" value="info" />
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%-5p %c{1} - %m%n"/>
     </layout>
@@ -12,6 +13,8 @@
   <appender name="appxNormalAppender" class="org.apache.log4j.FileAppender">
     <param name="file" value="appxLogFile.log" />
     <param name="append" value="true" />
+    <param name="MaxFileSize" value="500KB"/>
+    <param name="MaxBackupIndex" value="2" />
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d %-5p [%t:%x] %C{2} (%F:%L) - %m%n" />
     </layout>

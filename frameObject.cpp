@@ -54,7 +54,7 @@ IplImage* FrameObject::getSalientMask(){return cvCloneImage(salientForegroundMas
 int FrameObject::getFrameNumber(){return frameNumber;}
 
 void FrameObject::detectAll(initializationParams initPar){
-		LOG4CXX_INFO(loggerFrameObject , "Detection All");
+		LOG4CXX_DEBUG(loggerFrameObject , "Detection All");
 		try{
 			IplImage * img =  getFrame();
 			IplImage * background = getBackground();
@@ -66,7 +66,7 @@ void FrameObject::detectAll(initializationParams initPar){
 			
 			//cvThreshold(this->foregroundMask,this->salientForegroundMask,TL,255,CV_THRESH_BINARY);
 			cvThreshold(this->foregroundMask,this->foregroundMask,TH,255,CV_THRESH_BINARY);
-			LOG4CXX_DEBUG(loggerFrameObject, "Background mask created");
+			LOG4CXX_TRACE(loggerFrameObject, "Background mask created");
 			
 			//elemento strutturante
 			LOG4CXX_TRACE(loggerFrameObject, "Morphing correction");
@@ -134,7 +134,7 @@ void FrameObject::detectAll(initializationParams initPar){
 		{
 			LOG4CXX_ERROR(loggerFrameObject, "Frame number " << this->frameNumber << " losted: \n-\t" << e.what());
 		}
-		LOG4CXX_INFO(loggerFrameObject, "Detection completed: " << this->detectedObject.size() << "object detected.");
+		LOG4CXX_DEBUG(loggerFrameObject, "Detection completed: " << this->detectedObject.size() << " object detected.");
 
 }
 

@@ -9,7 +9,8 @@
 #define DEFAULT_THREAD_NUM 30
 
 typedef struct _initializationParams {
-        int useDefault;
+        int gap;
+		int useDefault;
 		int THREAD_NUM;
 		int POOL;
 		float THRESHOLD;
@@ -21,7 +22,6 @@ typedef struct _initializationParams {
 		int Delta;
 		int cicle_background;
 		bool thread_saving;
-		//string videoPath;
    // costruttore della struttura
         _initializationParams() : 
 			useDefault(1),
@@ -31,7 +31,8 @@ typedef struct _initializationParams {
 			alfa(-1),beta(-1),Th(-1),Ts(-1),Delta(10),
 			cicle_background(1),
 			thread_saving(TRUE),
-			POOL(30){ }
+			POOL(30),
+			gap(10){ }
   }initializationParams;
 
 //extern struct initializationParams;

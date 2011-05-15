@@ -71,6 +71,7 @@ int ParameterMenu(){
 		cout << "4 - Delivery Service (enable/disable)" << endl;
 		cout << "5 - Background suppression threshold" << endl;	
 		cout << "6 - Shadow threshold" << endl;
+		cout << "7 - Set max concurrent thread" << endl;		
 		cout << "0 - TERMINATED" << endl;		
 		cout << "Input: ";
 		cin >> res;
@@ -108,6 +109,10 @@ int ParameterMenu(){
 			case 6: 
 				shodowThresholdMenu();
 				break;
+			case 7: 
+				cout << "max concurrent: ";
+				cin >> initPar.gap;
+				break;
 			case 0:
 				return 0;
 			default:
@@ -127,7 +132,7 @@ int HomeMenu(){
 	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
 	cout << "*******************************************************************************" << endl;
 	cout << "\n -DEFAULT PARAMS----------------------------------------------------" << endl;	
-	cout << "| background training: 1 frame | Delivery service: OFF              |" << endl;
+	cout << "| background training: 1 frame | Delivery service: OFF | gap = 10   |" << endl;
 	cout << "| background threshold: " << initPar.THRESHOLD << "                                          |" << endl;
 	cout << "| K: " << initPar.K << " | alfa: auto |  beta: auto | Th: auto | Ts: auto \t    |"<<endl;
 	cout << " -------------------------------------------------------------------" << endl;		
