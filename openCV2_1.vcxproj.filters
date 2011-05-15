@@ -4,9 +4,6 @@
     <ClCompile Include="objectMask.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="frameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,7 +37,10 @@
     <ClCompile Include="log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main_console.cpp">
+    <ClCompile Include="home.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

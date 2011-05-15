@@ -265,8 +265,8 @@ if errorlevel 1 goto VCReportError</Command>
     <ClCompile Include="frameObject.cpp" />
     <ClCompile Include="gcptr.cpp" />
     <ClCompile Include="log.cpp" />
+    <ClCompile Include="home.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="main_console.cpp" />
     <ClCompile Include="objectMask.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
