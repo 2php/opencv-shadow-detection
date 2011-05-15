@@ -3,9 +3,7 @@
 //#define TH 30
 #define TL 10
 
-LoggerPtr loggerDO(Logger::getLogger( "Distruction Object"));
-LoggerPtr loggerObject(Logger::getLogger(" Object"));
-LoggerPtr loggerDetect(Logger::getLogger( "Detection Object"));
+LoggerPtr loggerFrameObject(Logger::getLogger( "FrameObject"));
 
 FrameObject::FrameObject(){
 	frame = NULL; 
@@ -29,7 +27,7 @@ FrameObject::~FrameObject(){
 	}
 	catch(exception& e){
 		throw e.what();
-		LOG4CXX_ERROR(loggerDO, "Error in distruction Object: "<< e.what());
+		LOG4CXX_ERROR(loggerFrameObject, "Error in distruction Object: "<< e.what());
 	}
 }
 
@@ -44,7 +42,7 @@ FrameObject::FrameObject(IplImage * currentFrame, IplImage * currentBackground,I
 		frameBlobs = CvBlobs();
 	}
 	catch(exception& e){
-		LOG4CXX_ERROR(loggerObject, "Error in FrameObject" << e.what());
+		LOG4CXX_ERROR(loggerFrameObject, e.what());
 	}
 
 }
@@ -56,35 +54,38 @@ IplImage* FrameObject::getSalientMask(){return cvCloneImage(salientForegroundMas
 int FrameObject::getFrameNumber(){return frameNumber;}
 
 void FrameObject::detectAll(initializationParams initPar){
-		LOG4CXX_TRACE(loggerDetect , "Detection All");
+		LOG4CXX_INFO(loggerFrameObject , "Detection All");
 		try{
 			IplImage * img =  getFrame();
 			IplImage * background = getBackground();
 			DetectedObject *temp = new DetectedObject(size,img->depth);
 
 			//cameraCorrection(img,img,MEDIAN,1.1,5);
-			double TH = initPar.THRESHOLD;
-			//rimuovo il background, ottengo la maschera del foreground
+			double TH = initPar.THRESHOLD;					
 			backgroundSuppression(img,background,this->foregroundMask);
-		
+			
 			//cvThreshold(this->foregroundMask,this->salientForegroundMask,TL,255,CV_THRESH_BINARY);
 			cvThreshold(this->foregroundMask,this->foregroundMask,TH,255,CV_THRESH_BINARY);
-
+			LOG4CXX_DEBUG(loggerFrameObject, "Background mask created");
+			
 			//elemento strutturante
+			LOG4CXX_TRACE(loggerFrameObject, "Morphing correction");
 			IplConvKernel *element=cvCreateStructuringElementEx(3, 3, 1, 1, CV_SHAPE_ELLIPSE, NULL);
 			//operazione morfolologica del gradiente, OPEN per migliorare la maschera
 			cvMorphologyEx (this->foregroundMask, this->foregroundMask, NULL, element, CV_MOP_OPEN, 1);
 			cvReleaseStructuringElement(&element);
+			LOG4CXX_TRACE(loggerFrameObject, "Morphing correction completed");
 			//estraggo le blob relative alla scena
 			IplImage *labelImg=cvCreateImage(size, IPL_DEPTH_LABEL, 1);
 			unsigned int labeled=cvLabel(this->foregroundMask, labelImg,this->frameBlobs);
+			LOG4CXX_TRACE(loggerFrameObject, "Area Filtering");			
 			cvFilterByArea(this->frameBlobs,200,1000000);
 
 			IplImage *src = cvCreateImage(size,8,3);
 
 			//salvo i valori relativi all'oggetto :
 			//    creo la mashera di ogni blob e divido ombra da oggetto
-			LOG4CXX_DEBUG(loggerDetect, "salvo i valori relativi all'oggetto, creo la mashera di ogni blob e divido ombra da oggetto");
+			LOG4CXX_DEBUG(loggerFrameObject, "salvo i valori relativi all'oggetto, creo la mashera di ogni blob e divido ombra da oggetto");
 			for (CvBlobs::const_iterator it=this->frameBlobs.begin(); it!=this->frameBlobs.end(); ++it)
 			{
 				cvZero(src);
@@ -131,8 +132,10 @@ void FrameObject::detectAll(initializationParams initPar){
 		}
 		catch(exception& e)
 		{
-			LOG4CXX_ERROR(loggerDetect, "Error in detection All: "<<e.what());
+			LOG4CXX_ERROR(loggerFrameObject, "Frame number " << this->frameNumber << " losted: \n-\t" << e.what());
 		}
+		LOG4CXX_INFO(loggerFrameObject, "Detection completed: " << this->detectedObject.size() << "object detected.");
+
 }
 
 list<DetectedObject*> FrameObject:: getDetectedObject(){

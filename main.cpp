@@ -267,12 +267,12 @@ DWORD WINAPI Delivery(void *param)
 
 int main ( int argc, char **argv )
 {
-	int cicle_background = 1;
+	int cicle_background = initPar.cicle_background;
 	//parametri salvataggio immaggini
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
 	p[1] = 90;
 	p[2] = 0;
-	thread_saving = TRUE;
+	thread_saving = initPar.thread_saving;
 	string video_path = "";
 	DOMConfigurator::configure("Log4cxxConfig.xml");
 
@@ -365,7 +365,7 @@ CvFGDStatModelParams* para = new CvFGDStatModelParams;
 
     while( !capture )
     {
-		LOG4CXX_ERROR(loggerMain,"Could not open video file");
+		LOG4CXX_WARN(loggerMain,"Could not open video file");
 		cout << "Insert a valid video path (type exit to quit the program): ";
 		cin >> video_path;
 		if(video_path == "exit") return 0;

@@ -147,14 +147,21 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 //	@param[out] result a mask that rappresent the shadow
 */
 void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSelection,IplImage *result,initializationParams initPar){
-	float K = initPar.K;
-	double Th,Ts;
-	double alfa, beta;
 
-	LOG4CXX_TRACE(loggershadowDetection, "Shadow Detection started....");
+	IplImage *temp,*Dbkg;
+	CvScalar MED1,MED2,MAD,MED;
+	
+	float K = initPar.K;
+	double alfa = initPar.alfa;
+	double beta = initPar.beta;
+	double Th = initPar.Th;
+	double Ts = initPar.Ts;
+	int Delta = initPar.Delta;
+
+	LOG4CXX_DEBUG(loggershadowDetection, "Shadow Detection started....");
 
 	try{
-			IplImage *hsv;
+		IplImage *hsv;
 		IplImage *H=cvCreateImage(cvGetSize(src), src->depth,1 ); 
 		IplImage *S=cvCreateImage(cvGetSize(src), src->depth,1 ); 
 		IplImage *V=cvCreateImage(cvGetSize(src), src->depth,1 ); 
@@ -173,35 +180,35 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		cvCvtColor(background,background,CV_BGR2HSV);
 		LOG4CXX_DEBUG(loggershadowDetection, "Conversion to HSV");
 		//cvCvtColor(dst,dst,CV_BGR2HSV);
-	
 
-	if(initPar.useDefault == 1){
-		IplImage *temp,*Dbkg;
-		Dbkg=cvCloneImage(hsv);
-		cvZero(Dbkg);
+		if(alfa == -1 || beta ==-1 || Th == -1 || Ts == -1){
+			IplImage *temp,*Dbkg;
+			Dbkg=cvCloneImage(hsv);
+			cvZero(Dbkg);
 
-		cvAbsDiff(hsv,background,Dbkg);
-		CvScalar MED = cvAvg(Dbkg,foregroundSelection);
-		temp=cvCloneImage(hsv);
-		cvAbsDiffS(Dbkg,temp,MED);
-		CvScalar MAD = cvAvg(temp,foregroundSelection);
+			cvAbsDiff(hsv,background,Dbkg);
+			CvScalar MED = cvAvg(Dbkg,foregroundSelection);
+			temp=cvCloneImage(hsv);
+			cvAbsDiffS(Dbkg,temp,MED);
+			CvScalar MAD = cvAvg(temp,foregroundSelection);
 
-		CvScalar MED1 = cvAvg(hsv,foregroundSelection);
-		CvScalar MED2 = cvAvg(background,foregroundSelection);
+			CvScalar MED1 = cvAvg(hsv,foregroundSelection);
+			CvScalar MED2 = cvAvg(background,foregroundSelection);
+		
+			if(alfa = -1)
+				alfa = MED1.val[2]/MED2.val[2]-K;
+			if(beta = -1)
+				beta = ((MED.val[2]+3*1.4826*MAD.val[2])/MED2.val[2])+K;
+			if(Th = -1)
+				Th = (MED.val[0]+MAD.val[0])/2+Delta;
+		
+			if(Ts = -1)
+				Ts = (MED.val[1]+MAD.val[1])/2-Delta;
 
-		Th = (MED.val[0]+MAD.val[0])/2+10;
-		Ts = (MED.val[1]+MAD.val[1])/2-10;
-		beta = ((MED.val[2]+3*1.4826*MAD.val[2])/MED2.val[2])+K;
-		alfa = MED1.val[2]/MED2.val[2]-K;
+			cvReleaseImage(&Dbkg);
+			cvReleaseImage(&temp);
+		}
 		LOG4CXX_DEBUG(loggershadowDetection, "Param Define conclused");
-		cvReleaseImage(&Dbkg);
-		cvReleaseImage(&temp);
-	}else{
-		alfa = initPar.alfa;
-		beta = initPar.beta;
-		Th = initPar.Th;
-		Ts = initPar.Ts;
-	}
 
 	//	Ts=20;
 
@@ -267,7 +274,8 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		LOG4CXX_DEBUG(loggershadowDetection, "shadow detection and memory release conclused");
 		}
 		catch(exception& e){
-		LOG4CXX_ERROR(loggershadowDetection,"Error in show detection: "<< e.what());
+			LOG4CXX_ERROR(loggershadowDetection,e.what());
+			throw e.what();
 		}
 }
 
@@ -319,20 +327,20 @@ void backgroundSuppression( IplImage *src, IplImage *background,IplImage *result
 
 	uchar *dataBG;
 	uchar *dataDBT;
-
-	height    = src->height;
-	width     = src->width;
-	step      = src->widthStep;
-	channels  = src->nChannels;
-	dataF      = (uchar *)src->imageData;
-
-	dataBG      = (uchar *)background->imageData;
-
-	dataDBT		= (uchar *)result->imageData;
-	LOG4CXX_TRACE(loggerBackgroundSuppression, "Background Suppression started....");
-	stepDbt = result->widthStep/sizeof(uchar);
-	int t =0;
 	try{
+		height    = src->height;
+		width     = src->width;
+		step      = src->widthStep;
+		channels  = src->nChannels;
+		dataF      = (uchar *)src->imageData;
+
+		dataBG      = (uchar *)background->imageData;
+
+		dataDBT		= (uchar *)result->imageData;
+		LOG4CXX_TRACE(loggerBackgroundSuppression, "Background Suppression started....");
+		stepDbt = result->widthStep/sizeof(uchar);
+		int t =0;
+
 			for(i=0;i<height;i++) {
 			for(j=0;j<width;j++) {
 				for(k=0;k<channels;k++){
@@ -347,7 +355,8 @@ void backgroundSuppression( IplImage *src, IplImage *background,IplImage *result
 			LOG4CXX_DEBUG(loggerBackgroundSuppression, "Background suppression conclused");
 	}
 	catch(exception& e){
-	LOG4CXX_ERROR(loggerBackgroundSuppression,"Error in Background Suppression: "<< e.what());
+		LOG4CXX_ERROR(loggerBackgroundSuppression,"Error in Background Suppression: "<< e.what());
+		throw e.what();
 	}
 }
 
