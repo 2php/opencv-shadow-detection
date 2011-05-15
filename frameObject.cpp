@@ -61,12 +61,12 @@ void FrameObject::detectAll(initializationParams initPar){
 			IplImage * img =  getFrame();
 			IplImage * background = getBackground();
 			DetectedObject *temp = new DetectedObject(size,img->depth);
-		
+
 			//cameraCorrection(img,img,MEDIAN,1.1,5);
 			double TH = initPar.THRESHOLD;
 			//rimuovo il background, ottengo la maschera del foreground
 			backgroundSuppression(img,background,this->foregroundMask);
-
+		
 			//cvThreshold(this->foregroundMask,this->salientForegroundMask,TL,255,CV_THRESH_BINARY);
 			cvThreshold(this->foregroundMask,this->foregroundMask,TH,255,CV_THRESH_BINARY);
 

@@ -267,6 +267,7 @@ DWORD WINAPI Delivery(void *param)
 
 int main ( int argc, char **argv )
 {
+	int cicle_background = 1;
 	//parametri salvataggio immaggini
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
 	p[1] = 90;
@@ -274,17 +275,21 @@ int main ( int argc, char **argv )
 	thread_saving = TRUE;
 	string video_path = "";
 	DOMConfigurator::configure("Log4cxxConfig.xml");
-    LOG4CXX_TRACE(loggerMain, "debug message (detailed)");
-    LOG4CXX_DEBUG(loggerMain, "debug message");
-    LOG4CXX_INFO (loggerMain, "info message");
-    LOG4CXX_WARN (loggerMain, "warn message");
-    LOG4CXX_ERROR(loggerMain, "error message");
-    LOG4CXX_FATAL(loggerMain, "fatal message!!!");
-    
+
 	string response = "";
 
 	initPar =  _initializationParams();
-	cout << "DEFAULT PARAMS:\n\nTHRESHOLD: " << initPar.THRESHOLD << "\nK: " << initPar.K << "\nalfa: auto\nbeta: auto\nTh: auto\nTs: auto";
+	cout << "*******************************************************************************" << endl;
+	cout << "*   MVO'S & SHADOW DETECTION    v.1.0                                         *" << endl;
+	cout << "*     (Università degli studi di Catania - 2010-2011)                         *" << endl;
+	cout << "*-----------------------------------------------------------------------------*" << endl;
+	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
+	cout << "*******************************************************************************" << endl;
+
+	cout << "DEFAULT PARAMS:\n" << endl;
+	cout << "Number of frame for background model creation: 1" << endl;
+	cout << "Delivery service: OFF" << endl;
+	cout << "THRESHOLD: " << initPar.THRESHOLD << "\nK: " << initPar.K << "\nalfa: auto\nbeta: auto\nTh: auto\nTs: auto";
 
 	cout << "\n\nUse default settings? (y/n): ";
 	cin >> response;
@@ -298,6 +303,8 @@ int main ( int argc, char **argv )
 		cin >> response;
 
 		if(response == "y")	thread_saving=TRUE;
+		cout << "Numero di frame per la creazione del modello del background: ";
+		cin >> cicle_background;
 
 		cout << "\nDefine THREAD_NUM: ";
 		cin >> initPar.THREAD_NUM;
@@ -374,15 +381,17 @@ const int numOfTotalFrames = (int) cvGetCaptureProperty( capture , CV_CAP_PROP_F
 CvBGStatModel* bgModel = cvCreateFGDStatModel(img,para);
 cvUpdateBGStatModel(img,bgModel);
 //Crea un modello del backgroud
-for(;nframe<1;nframe++){
+LOG4CXX_INFO(loggerMain,"Apprendimento background...");
+for(;nframe<cicle_background;nframe++){
 	cvGrabFrame(capture);
 	img = cvRetrieveFrame(capture);
 	//cameraCorrection(img,img,MEDIAN,1.1,5);
 	if(nframe%10==0){
 	cvUpdateBGStatModel(img,bgModel);
+	cout << ".";
 	}
 }
-
+LOG4CXX_INFO(loggerMain,"Modello del background creato correttamente");
 list<DetectedObject>::iterator i;
 list<DetectedObject> det;
 
@@ -409,7 +418,8 @@ while(thread_num<initPar.THREAD_NUM && flag){
 	while (cicle_num>=0 && flag){
 		img = cvRetrieveFrame(capture);
 		if(index%10==0) {
-			cvUpdateBGStatModel(img,bgModel);
+			if(cicle_background != 1)
+				cvUpdateBGStatModel(img,bgModel);
 			cameraCorrection(img,img,MEDIAN,1.1,5);
 			list.push_back(cvCloneImage(img));
 			cicle_num--;

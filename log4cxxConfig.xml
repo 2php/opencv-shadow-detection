@@ -17,10 +17,20 @@
     </layout>
   </appender>
 
+  <appender name="ChainsawAppenderXML" class="org.apache.log4j.XMLSocketAppender">
+    <param name="RemoteHost" value="127.0.0.1"/>
+    <param name="Port" value="4445" />
+    <layout class="org.apache.log4j.xml.XMLLayout">
+      <param name="properties" value="true" />
+      <param name="locationinfo" value="true" />
+    </layout>
+  </appender>
+
   <root>
     <priority value="all" />
     <appender-ref ref="appxNormalAppender"/>
     <appender-ref ref="appxConsoleAppender"/>
+    <appender-ref ref="ChainsawAppenderXML"/>
   </root>
 
   <!-- Specify the level for some specific categories -->
