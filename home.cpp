@@ -1,13 +1,4 @@
-#include "frameObject.h"
-#include "shadow.h"
-#include <process.h>
-#include "ThreadPool.h"
-#include <iostream>
-#include <string>
-
-#define POOL 30
-#define TL 15
-#define video "c:/users/paolo/videos/prova12.avi"
+#include "home.h"
 
 LoggerPtr loggerDelivery(Logger::getLogger( "Delivery"));
 LoggerPtr loggerMain(Logger::getLogger( "main"));
@@ -25,8 +16,7 @@ bool thread_saving;
 //Parametri delle immagini memorizzate su disco
 int p[3];    	
 
-CThreadPool threadPool = CThreadPool(POOL,TRUE,INFINITE);
-initializationParams initPar;
+
 
 template <class T>
 string to_string(T t, int n,bool saving = FALSE)
@@ -265,8 +255,9 @@ DWORD WINAPI Delivery(void *param)
 	return 0;
 }
 
-int Start ()
+void Start ()
 {
+	CThreadPool threadPool = CThreadPool(initPar.POOL,TRUE,INFINITE);	
 	int cicle_background = initPar.cicle_background;
 	//parametri salvataggio immaggini
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
@@ -274,63 +265,6 @@ int Start ()
 	p[2] = 0;
 	thread_saving = initPar.thread_saving;
 	string video_path = "";
-	DOMConfigurator::configure("Log4cxxConfig.xml");
-
-	string response = "";
-
-	initPar =  _initializationParams();
-	cout << "*******************************************************************************" << endl;
-	cout << "*   MVO'S & SHADOW DETECTION    v.1.0                                         *" << endl;
-	cout << "*     (Università degli studi di Catania - 2010-2011)                         *" << endl;
-	cout << "*-----------------------------------------------------------------------------*" << endl;
-	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
-	cout << "*******************************************************************************" << endl;
-
-	cout << "DEFAULT PARAMS:\n" << endl;
-	cout << "Number of frame for background model creation: 1" << endl;
-	cout << "Delivery service: OFF" << endl;
-	cout << "THRESHOLD: " << initPar.THRESHOLD << "\nK: " << initPar.K << "\nalfa: auto\nbeta: auto\nTh: auto\nTs: auto";
-
-	cout << "\n\nUse default settings? (y/n): ";
-	cin >> response;
-
-	if(response == "y")
-	{
-		cout << "\nDefault settings loaded"<<endl;
-	}else{
-		initPar.useDefault = 0;
-		cout << "\nWould you disable Delivery service? (y/n): ";
-		cin >> response;
-
-		if(response == "y")	thread_saving=TRUE;
-		cout << "Numero di frame per la creazione del modello del background: ";
-		cin >> cicle_background;
-
-		cout << "\nDefine THREAD_NUM: ";
-		cin >> initPar.THREAD_NUM;
-		//threshold deve essere compreso tra 0 e 250
-		do{
-			cout << "\nDefine THRESHOLD con un valore compreso tra 0 e 250: ";//0 250
-			cin >> initPar.THRESHOLD;
-		}while(initPar.THRESHOLD>250 || initPar.THRESHOLD<0);
-		//alfa deve essere compreso tra 0 e 1
-		do{
-			cout << "Define alfa con un valore compreso tra 0 e 1: "; 
-			cin >> initPar.alfa;
-		}while(initPar.alfa<0 || initPar.alfa>1);
-		//beta deve essere compreso tra 0 e 1, inoltre deve essere maggiore di alfa
-		do {
-			cout << "Define beta con un valore compreso tra 0 e 1: "; 
-			cin >> initPar.beta;
-		}while (initPar.beta<0 || initPar.beta>1 || initPar.alfa>initPar.beta);
-		cout << "Define Th: ";
-		cin >> initPar.Th;
-		cout << "Define Ts: ";
-		cin >> initPar.Ts;
-		cout << "Define K: ";
-		cin >> initPar.K;
-	}
-
 size = 10000000;
 mutex = CreateMutex(NULL,FALSE,NULL);
 //IplImage *bkg = cvLoadImage("C:/Users/Paolo/Pictures/sharp.jpg",1);
@@ -355,20 +289,13 @@ CvFGDStatModelParams* para = new CvFGDStatModelParams;
  para->T=0.9f;
 
 
-    CvCapture* capture = 0;
+    CvCapture* capture = cvCaptureFromAVI(video);
 
-    if(1==0 && argc == 1 || (argc == 2 && strlen(argv[1]) == 1 && isdigit(argv[1][0])))
-        capture = cvCaptureFromCAM( argc == 2 ? argv[1][0] - '0' : 0 );
-    else if(1==1 || argc == 2 )
-		capture = cvCaptureFromAVI(video);
-        /*capture = cvCaptureFromAVI( argv[1] );*/
-
-    while( !capture )
+	while( !capture )
     {
 		LOG4CXX_WARN(loggerMain,"Could not open video file");
 		cout << "Insert a valid video path (type exit to quit the program): ";
 		cin >> video_path;
-		if(video_path == "exit") return 0;
 		capture = cvCaptureFromAVI(video_path.c_str());
     }
 
@@ -474,7 +401,6 @@ WaitForSingleObject(handle.at(thread_num),INFINITE);
 if(thread_saving==FALSE)
 	WaitForSingleObject(handle.at(0),INFINITE);
 LOG4CXX_INFO(loggerMain,"Chisura applicazione...")
-threadPool.Destroy();
-return 0;
+//threadPool.Destroy();
 }
 

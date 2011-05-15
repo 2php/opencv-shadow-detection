@@ -285,6 +285,7 @@ if errorlevel 1 goto VCReportError</Command>
     <ClInclude Include="..\..\..\..\..\..\Development\cvblob\cvBlob\cvblob.h" />
     <ClInclude Include="frameObject.h" />
     <ClInclude Include="gcptr.h" />
+    <ClInclude Include="home.h" />
     <ClInclude Include="initializationParams.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="shadow.h" />

@@ -1,12 +1,42 @@
-#include "frameObject.h"
-#include "shadow.h"
-#include <process.h>
-#include "ThreadPool.h"
-#include <iostream>
-#include <string>
+#include "home.h"
 
-initializationParams initPar;
 LoggerPtr loggerConsole(Logger::getLogger( "Console"));
+
+void ClearScreen(){
+  HANDLE                     hStdOut;
+  CONSOLE_SCREEN_BUFFER_INFO csbi;
+  DWORD                      count;
+  DWORD                      cellCount;
+  COORD                      homeCoords = { 0, 0 };
+
+  hStdOut = GetStdHandle( STD_OUTPUT_HANDLE );
+  if (hStdOut == INVALID_HANDLE_VALUE) return;
+
+  /* Get the number of cells in the current buffer */
+  if (!GetConsoleScreenBufferInfo( hStdOut, &csbi )) return;
+  cellCount = csbi.dwSize.X *csbi.dwSize.Y;
+
+  /* Fill the entire buffer with spaces */
+  if (!FillConsoleOutputCharacter(
+    hStdOut,
+    (TCHAR) ' ',
+    cellCount,
+    homeCoords,
+    &count
+    )) return;
+
+  /* Fill the entire buffer with the current colors and attributes */
+  if (!FillConsoleOutputAttribute(
+    hStdOut,
+    csbi.wAttributes,
+    cellCount,
+    homeCoords,
+    &count
+    )) return;
+
+  /* Move the cursor home */
+  SetConsoleCursorPosition( hStdOut, homeCoords );
+ }
 
 void shodowThresholdMenu(){
 		//alfa deve essere compreso tra 0 e 1
@@ -28,8 +58,9 @@ void shodowThresholdMenu(){
 }
 
 int ParameterMenu(){
+	int res;
 	while(TRUE){	
-		cout.clear();
+		ClearScreen();
 		cout << "Parameter Menu:";
 		cout << "\n1 - Thread number"<< endl;
 		cout << "2 - Number of processed frame for every single thread"<< endl;		
@@ -38,7 +69,10 @@ int ParameterMenu(){
 		cout << "5 - Background suppression threshold" << endl;	
 		cout << "6 - Shadow threshold" << endl;
 		cout << "0 - TERMINATED" << endl;		
-		switch(cin.get()){
+		cout << "Input: ";
+		cin >> res;
+
+		switch(res){
 			case 1: 
 				cout << "\ndefine number of thread: ";
 				cin >> initPar.POOL;
@@ -80,37 +114,43 @@ int ParameterMenu(){
 }
 
 int HomeMenu(){
+	int res;
+	ClearScreen();
 	cout << "*******************************************************************************" << endl;
 	cout << "*   MVO'S & SHADOW DETECTION console  v.1.0                                   *" << endl;
 	cout << "*     (Università degli studi di Catania - 2010-2011)                         *" << endl;
 	cout << "*-----------------------------------------------------------------------------*" << endl;
 	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
 	cout << "*******************************************************************************" << endl;
-	cout << "DEFAULT PARAMS:\n" << endl;
-	cout << "Number of frame for background model creation: 1" << endl;
-	cout << "Delivery service: OFF" << endl;
-	cout << "THRESHOLD: " << initPar.THRESHOLD << "\nK: " << initPar.K << "\nalfa: auto\nbeta: auto\nTh: auto\nTs: auto";
-	cout << "\n1 - Start"<< endl;
+	cout << " -DEFAULT PARAMS----------------------------------------------------" << endl;	
+	cout << "| background training: 1 frame | Delivery service: OFF              |" << endl;
+	cout << "| background threshold: " << initPar.THRESHOLD << "                                          |" << endl;
+	cout << "| K: " << initPar.K << " | alfa: auto |  beta: auto | Th: auto | Ts: auto \t    |"<<endl;
+	cout << " -------------------------------------------------------------------" << endl;		
+	cout << "\n1 - START"<< endl;
 	cout << "2 - Set video path"<< endl;
 	cout << "3 - Change parameter" << endl;
 	cout << "0 - QUIT" << endl;
-	return cin.get();
+	cout << "\nInput: ";
+	cin>>res;
+	return res;
 }
 
 int main ( int argc, char **argv ){
 	string response = "";
 	DOMConfigurator::configure("Log4cxxConfig.xml");
 	initPar =  _initializationParams();
-
+	int res;
 
 	while(TRUE){
-		switch(HomeMenu()){
+		res=HomeMenu();
+		switch(res){
 			case 1: 
 				Start();
 				break;
 			case 2:
-				cout << "Insert video path: ";
-				cin >> initPar.videoPath;
+				cout << "Insert video path: DISABLED";
+				//cin >> initPar.videoPath;
 				break;
 			case 3: 
 				ParameterMenu();
