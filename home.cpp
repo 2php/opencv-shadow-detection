@@ -400,8 +400,7 @@ void Start ()
 	if(thread_saving==FALSE)
 		WaitForSingleObject(handle.at(0),INFINITE);
 	LOG4CXX_INFO(loggerMain,"Elaborazione video " << video_path << " terminata.");
-	cout << "Press any key to continue...";
-	cin >> video_path;
+	system("PAUSE");
 	//threadPool.Destroy();
 }
 
