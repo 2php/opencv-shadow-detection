@@ -29,7 +29,7 @@ FrameObject::~FrameObject(){
 	}
 	catch(exception& e){
 		throw e.what();
-		LOG4CXX_ERROR(loggerDO, "Error in distruction Object: "<< e.what().toString());
+		LOG4CXX_ERROR(loggerDO, "Error in distruction Object: "<< e.what());
 	}
 }
 
