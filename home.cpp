@@ -259,15 +259,14 @@ DWORD WINAPI Delivery(void *param)
 
 void Start (initializationParams par, string path)
 {
-
+	initPar=par;
 	CThreadPool threadPool = CThreadPool(initPar.POOL,TRUE,INFINITE);	
 	gap=initPar.gap;
-	int cicle_background = initPar.cicle_background;
+	int cicle_background = par.cicle_background;
 	//parametri salvataggio immaggini
 	p[0] = CV_IMWRITE_JPEG_QUALITY;
 	p[1] = 90;
 	p[2] = 0;
-	initPar=par;
 	thread_saving = initPar.thread_saving;
 	string video_path = path;
 	size = 10000000;
