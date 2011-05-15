@@ -265,7 +265,7 @@ DWORD WINAPI Delivery(void *param)
 	return 0;
 }
 
-int main ( int argc, char **argv )
+int Start ()
 {
 	int cicle_background = initPar.cicle_background;
 	//parametri salvataggio immaggini

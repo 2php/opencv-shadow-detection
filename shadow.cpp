@@ -195,14 +195,14 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 			CvScalar MED1 = cvAvg(hsv,foregroundSelection);
 			CvScalar MED2 = cvAvg(background,foregroundSelection);
 		
-			if(alfa = -1)
+			if(alfa == -1)
 				alfa = MED1.val[2]/MED2.val[2]-K;
-			if(beta = -1)
+			if(beta == -1)
 				beta = ((MED.val[2]+3*1.4826*MAD.val[2])/MED2.val[2])+K;
-			if(Th = -1)
+			if(Th == -1)
 				Th = (MED.val[0]+MAD.val[0])/2+Delta;
 		
-			if(Ts = -1)
+			if(Ts == -1)
 				Ts = (MED.val[1]+MAD.val[1])/2-Delta;
 
 			cvReleaseImage(&Dbkg);

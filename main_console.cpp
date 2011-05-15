@@ -73,14 +73,15 @@ int ParameterMenu(){
 			case 0:
 				return 0;
 			default:
-
+				cout << "Invalid option" << endl;
+				break;
 		}
 	}
 }
 
 int HomeMenu(){
 	cout << "*******************************************************************************" << endl;
-	cout << "*   MVO'S & SHADOW DETECTION console  v.1.0                                         *" << endl;
+	cout << "*   MVO'S & SHADOW DETECTION console  v.1.0                                   *" << endl;
 	cout << "*     (Università degli studi di Catania - 2010-2011)                         *" << endl;
 	cout << "*-----------------------------------------------------------------------------*" << endl;
 	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
@@ -118,7 +119,8 @@ int main ( int argc, char **argv ){
 				LOG4CXX_INFO(loggerConsole,"Program closed");
 				return 0;
 			default:
-				cout << "Invalid option";
+				cout << "Invalid option" << endl;
+				break;
 		}			
 	}
 }	
