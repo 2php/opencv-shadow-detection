@@ -261,15 +261,15 @@ DWORD WINAPI Delivery(void *param)
 
 /*!
 //void Start (initializationParams par, string path)
-//Metodo che fa effettivamente partire l'applicazione:
-// 	@param[in] par Contiene i parametri necessari per l'analisi del video
-//	@param[in] path contiene il pat del video che va analizzato
+//Mvo's detection and shadow suppression method 
+// 	@param[in] par the inizialization parameter
+//	@param[in] path the path of video suorce file
 */
 void Start (initializationParams par, string path)
 {
 	initPar=par;
 	CThreadPool threadPool = CThreadPool(initPar.POOL,TRUE,INFINITE);	
-	gap=initPar.gap;
+	gap=initPar.wait;
 	int cicle_background = par.cicle_background;
 	//parametri salvataggio immaggini
 	p[0] = CV_IMWRITE_JPEG_QUALITY;

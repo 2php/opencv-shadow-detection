@@ -140,6 +140,7 @@ void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size){
 
 /*!
 //void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSelection)
+// \link shadowDetection \endlink
 //Metodo per il detecting delle ombre (HSV space)
 //	@param[in] src The source image for shadow detection
 //	@param[in] background The background image

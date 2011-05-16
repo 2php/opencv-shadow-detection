@@ -11,6 +11,8 @@ FrameObject::FrameObject(){
 	foregroundMask = NULL;
 	salientForegroundMask = NULL;
 	frameNumber = 0;
+	size.height=0;
+	size.width=0;
 }
 
 FrameObject::~FrameObject(){

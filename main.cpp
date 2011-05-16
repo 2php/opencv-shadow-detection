@@ -111,7 +111,7 @@ int ParameterMenu(){
 				break;
 			case 7: 
 				cout << "max concurrent: ";
-				cin >> initPar.gap;
+				cin >> initPar.wait;
 				break;
 			case 0:
 				return 0;

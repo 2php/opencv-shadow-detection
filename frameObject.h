@@ -27,6 +27,8 @@ typedef struct _DetectedObject
 	/*!
 	//Blobs dell'mvo*/	
 	CvBlobs mvoBlobs;
+
+	//!Constructor
 	_DetectedObject(CvSize size,int depth){
 		try{
 		totalMask = cvCreateImage(size,depth,1);				
@@ -42,7 +44,7 @@ typedef struct _DetectedObject
 		}
 	}
 	
-	virtual ~_DetectedObject(){
+	~_DetectedObject(){
 		try{
 			cvReleaseImage(&totalMask);
 			cvReleaseImage(&mvoMask);

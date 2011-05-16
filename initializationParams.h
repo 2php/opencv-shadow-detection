@@ -8,21 +8,25 @@
 #define DEFAULT_K 10
 #define DEFAULT_THREAD_NUM 30
 
+
+/*!
+// Initialization parameter
+*/
 typedef struct _initializationParams {
-        int gap;
-		int useDefault;
-		int THREAD_NUM;
-		int POOL;
-		float THRESHOLD;
-        double alfa;
-		double beta;
-		double Th;
-		double Ts;
-		float K;
-		int Delta;
-		int cicle_background;
-		bool thread_saving;
-   // costruttore della struttura
+        int wait; /**< the number of simultaneous running thread (this parameter influence the memory usage*/
+		int useDefault; /**< DEPRECATED 1 for default parameter usage*/
+		int THREAD_NUM; /**<number of total thrad that run for one avi (how many frame for each thread...depends on video lenght)*/
+		int POOL; /**< thread pool size */
+		float THRESHOLD; /**< the gray threshold for background suppression*/
+        double alfa;  /**< alfa Value threshold in \link shadowDetection */
+		double beta; /**< beta Value threashold in \link shadowDetection */
+		double Th; /**< Hue threshold in \link shadowDetection */
+		double Ts; /**< Saturation threshold in \link shadowDetection */
+		float K;  /**< DEPRECATED k in \link shadowDetection*/
+		int Delta; /**< Delta in \link shadowDetection */
+		int cicle_background; /**< numder of frame for background learning*/
+		bool thread_saving; /**< set TRUE to disable Delivery service*/
+   ///Default constructor
         _initializationParams() : 
 			useDefault(1),
 			THRESHOLD(DEFAULT_THRESHOLD),
@@ -32,7 +36,7 @@ typedef struct _initializationParams {
 			cicle_background(1),
 			thread_saving(TRUE),
 			POOL(30),
-			gap(10){ }
+			wait(10){ }
   }initializationParams;
 
 //extern struct initializationParams;
