@@ -329,7 +329,7 @@ void Start (initializationParams par, string path)
 	started = CreateEvent(NULL,FALSE,FALSE,NULL);
 
 	list<IplImage*>sal;
-	list<IplImage*>list;
+	list<IplImage*>lista;
 
 	int cicle_num = 0;
 	int count=0;
@@ -341,7 +341,7 @@ void Start (initializationParams par, string path)
 	//_beginthread(Delivery,0,NULL);
 	while(thread_num<initPar.THREAD_NUM && flag){
 		sal.clear();
-		list.clear();
+		lista.clear();
 		first = count;
 		cicle_num = numOfTotalFrames/initPar.THREAD_NUM;
 		index=0;
@@ -352,7 +352,7 @@ void Start (initializationParams par, string path)
 				if(cicle_background != 1)
 					cvUpdateBGStatModel(img,bgModel);
 				cameraCorrection(img,img,MEDIAN,1.1,5);
-				list.push_back(cvCloneImage(img));
+				lista.push_back(cvCloneImage(img));
 				cicle_num--;
 				count++;			
 				sal.push_back(cvCloneImage(bgModel->foreground));
@@ -364,8 +364,8 @@ void Start (initializationParams par, string path)
 		/*Gestione coda degli handle*/
 		handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
 		/****************************/
-		threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal),Low);
-		//_beginthread((void)Thread,0,new _threadParam(cvCloneImage(bgModel->background),list,first,thread_num,sal));
+		threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),lista,first,thread_num,sal),Low);		
+		
 		if(thread_num%10==0 && thread_num !=0){ 
 			LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (LOCK): waiting previous thread completition (thread n# "<<thread_num<<"");
 			WaitForSingleObject(handle.at(thread_num),INFINITE);
@@ -405,7 +405,12 @@ void Start (initializationParams par, string path)
 	if(thread_saving==FALSE)
 		WaitForSingleObject(handle.at(0),INFINITE);
 	LOG4CXX_INFO(loggerMain,"Elaborazione video " << video_path << " terminata.");
+	try{
+		cvReleaseBGStatModel(&bgModel);
+		threadPool.Destroy();
+	}catch(exception &e){
+		e.what();
+	}
 	system("PAUSE");
-	//threadPool.Destroy();
 }
 
