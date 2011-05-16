@@ -165,6 +165,8 @@ DWORD WINAPI Thread(void* param)
 			myFrames.push_back(dynamic_cast<FrameObject*>(temp));
 		}
  	}
+	cvReleaseImage(&pa.background);
+
 	if(thread_saving==TRUE) {
 		LOG4CXX_INFO(loggerThread,"Stopping thread " << pa.threadNum);	
 		int repeat = 0;
