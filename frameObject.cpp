@@ -124,7 +124,8 @@ void FrameObject::detectAll(initializationParams initPar){
 				detectedObject.push_front(temp);
 				temp =  new DetectedObject(size,img->depth);
 			}
-
+		
+		temp->~_DetectedObject();
 		cvReleaseImage(&labelImg);
 		cvReleaseImage(&img);
 		cvReleaseImage(&background);
