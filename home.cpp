@@ -259,6 +259,12 @@ DWORD WINAPI Delivery(void *param)
 	return 0;
 }
 
+/*!
+//void Start (initializationParams par, string path)
+//Metodo che fa effettivamente partire l'applicazione:
+// 	@param[in] par Contiene i parametri necessari per l'analisi del video
+//	@param[in] path contiene il pat del video che va analizzato
+*/
 void Start (initializationParams par, string path)
 {
 	initPar=par;
