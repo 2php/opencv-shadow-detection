@@ -87,7 +87,7 @@ int ParameterMenu(){
 				cin >> initPar.POOL;
 				break;
 			case 2:
-				cout << "max frame for thread number: ";
+				cout << "max frame for thread : ";
 				cin >> initPar.THREAD_NUM;
 				break;
 			case 3: 

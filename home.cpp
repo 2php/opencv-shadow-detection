@@ -354,23 +354,25 @@ void Start (initializationParams par, string path)
 	list<preprocessStruct*>temporaryList;
 
 	int cicle_num = 0;
+	int divider=initPar.THREAD_NUM;
+	//int divider=numOfTotalFrames/initPar.THREAD_NUM;
 	int count=0;
 	int first=0;
 	int thread_num=0;
 	int index;
 	int flag = TRUE;
 	preprocessStruct *temp;
-
+	handle.clear();
 	threadPool.Run(Delivery,NULL,High);
 	//_beginthread(Delivery,0,NULL);
-	while(thread_num<initPar.THREAD_NUM && flag){
+	while(thread_num<divider && flag){
 		temporaryList.clear();
 		first = count;
-		cicle_num = numOfTotalFrames/initPar.THREAD_NUM;
+		cicle_num = numOfTotalFrames/divider;
 		index=0;
 		flag = cvGrabFrame(capture);
 
-		while (cicle_num>=0 && flag){
+		while (cicle_num>0 && flag){
 			img = cvRetrieveFrame(capture);
 			if(index%gap==0) {
 
