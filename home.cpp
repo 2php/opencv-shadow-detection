@@ -160,7 +160,7 @@ DWORD WINAPI Thread(void* param)
 	list<FrameObject*> myFrames;
 	int count = pa.numOfFirstFrame;
 	list<preprocessStruct*>::iterator j;
-
+	bool ghost=FALSE;
 	LOG4CXX_INFO(loggerThread,"Thread "<< pa.threadNum << " started");	
 	
 	for(j=pa.child.begin(); j != pa.child.end();j++){
@@ -168,16 +168,26 @@ DWORD WINAPI Thread(void* param)
 		temp = new FrameObject((*j)->frame,(*j)->background,(*j)->salient, count);
 		count++;
 		temp->detectAll(initPar);
-		WaitForSingleObject(started,INFINITE);
-		isGhost(temp->getForegroundMask());
-		ReleaseMutex(started);
-		if(thread_saving==TRUE){
-			LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
-			SaveDetectedToImage(temp,initPar.three);
-			temp->~FrameObject();
+		if(initPar.supervisioning==TRUE){
+			WaitForSingleObject(started,INFINITE);
+			ghost=isGhost(temp->getForegroundMask());
+			ReleaseMutex(started);
 		}
-		else{	
-			myFrames.push_back(dynamic_cast<FrameObject*>(temp));
+		if(!ghost){
+			if(thread_saving==TRUE){
+				LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
+				SaveDetectedToImage(temp,initPar.three);
+				temp->~FrameObject();
+			}
+			else{	
+				myFrames.push_back(dynamic_cast<FrameObject*>(temp));
+			}
+		}
+		else{
+			if(thread_saving==TRUE){
+				LOG4CXX_DEBUG(loggerThread,"Deleting ghost from memory");
+				temp->~FrameObject();
+			}
 		}
  	}
 
@@ -196,6 +206,7 @@ DWORD WINAPI Thread(void* param)
 		SetEvent(handle.at(pa.threadNum+1));
 		return 0;
 	}
+
 	LOG4CXX_DEBUG(loggerThread,"Thread n# "<< pa.threadNum << " -> Prepare to accode frame for delivery service");
 	//soggetto a errori se ancora non esiste l'handle su cui fa SetEvent
 	if(pa.threadNum%gap != 0){

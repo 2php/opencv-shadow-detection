@@ -28,6 +28,7 @@ typedef struct _initializationParams {
 		bool thread_saving; /**< set TRUE to disable Delivery service*/
 		bool three; /**save result mvo's in a three directories*/
 		bool saveShadow; /**save result shadows?*/
+		bool supervisioning; 
    ///Default constructor
         _initializationParams() : 
 			useDefault(1),
@@ -40,7 +41,8 @@ typedef struct _initializationParams {
 			POOL(30),
 			wait(10),
 			three(FALSE),
-			saveShadow(FALSE){ }
+			saveShadow(FALSE),
+			supervisioning(FALSE){}
   }initializationParams;
 
 //extern struct initializationParams;

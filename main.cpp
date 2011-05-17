@@ -75,6 +75,7 @@ int ParameterMenu(){
 		cout << "7 - Set max concurrent thread" << endl;
 		cout << "8 - Save in a three directories (enable/disable)" << endl;
 		cout << "9 - Save shadow (enable/disable)" << endl;
+		cout << "10 - Supervisioning (enable/disable)" << endl;		
 		cout << "0 - TERMINATED" << endl;		 
 		cout << "Input: ";
 		cin>>temp;
@@ -138,6 +139,16 @@ int ParameterMenu(){
 				}
 				system("PAUSE");
 				break;
+			case 10:
+				if(initPar.supervisioning==TRUE){
+					initPar.supervisioning=FALSE;
+					cout << "Supervisioning disabled" << endl;
+				}else{
+					initPar.supervisioning=TRUE;
+					cout << "Supervisioning enabled" << endl;
+				}
+				system("PAUSE");
+				break;
 			case 0:
 				return 0;
 			default:
@@ -161,6 +172,7 @@ int HomeMenu(){
 	cout << "*******************************************************************************" << endl;
 	cout << "\n -DEFAULT PARAMS-------------------------------------------------------------" << endl;	
 	cout << "| background training: "<< initPar.cicle_background<<" frame | Delivery service off: "<< initPar.thread_saving<<" | gap = " << initPar.wait<< endl;
+	cout << "| Supervisioning: " << initPar.supervisioning<<endl;	
 	cout << "| background threshold: " << initPar.THRESHOLD << " | Save shadow: " << initPar.saveShadow << " | Foldering enable: " << initPar.three<< endl;
 	cout << "| Delta: " << initPar.Delta << " | alfa: "<<initPar.alfa<<" |  beta: "<<initPar.beta<<" | Th: "<<initPar.Th<<" | Ts: "<<initPar.Ts<<" \t    "<<endl;
 	cout << " ------------------------------------------------------------------------------" << endl;		
