@@ -61,7 +61,8 @@ void shodowThresholdMenu(){
 int ParameterMenu(){
 	int res;
 	const char u = ' ';
-
+	istringstream tempI;
+	string temp;
 	while(TRUE){	
 		ClearScreen();
 		cout << "Parameter Menu:";
@@ -76,9 +77,10 @@ int ParameterMenu(){
 		cout << "9 - Save shadow (enable/disable)" << endl;
 		cout << "0 - TERMINATED" << endl;		 
 		cout << "Input: ";
-		cin.clear();
-		cin >> res;
-
+		cin>>temp;
+		istringstream tempI(temp);
+		tempI>>res;
+		
 		switch(res){
 			case 1: 
 				cout << "\ndefine number of thread: ";
@@ -146,8 +148,10 @@ int ParameterMenu(){
 }
 
 int HomeMenu(){
-	int res;
+	int res=-1;
+	string temp;
 	ClearScreen();
+	cin.clear();
 	cout << "*******************************************************************************" << endl;
 	cout << "*   MVO'S & SHADOW DETECTION console  v.1.0                                   *" << endl;
 	cout << "*     (Università degli studi di Catania - 2010-2011)                         *" << endl;
@@ -165,8 +169,9 @@ int HomeMenu(){
 	cout << "3 - Change parameter" << endl;
 	cout << "0 - QUIT" << endl;
 	cout << "\nInput: ";
-	cin.clear();
-	cin>>res;
+	cin>>temp;
+	istringstream tempI(temp);
+	tempI>>res;
 	return res;
 }
 
@@ -195,6 +200,7 @@ int main ( int argc, char **argv ){
 				return 0;
 			default:
 				cout << "Invalid option" << endl;
+				system("PAUSE");
 				break;
 		}			
 	}
