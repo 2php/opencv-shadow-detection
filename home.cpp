@@ -168,8 +168,9 @@ DWORD WINAPI Thread(void* param)
 		temp = new FrameObject((*j)->frame,(*j)->background,(*j)->salient, count);
 		count++;
 		temp->detectAll(initPar);
-		//if(!isGhost(temp->detectedObject...))
-
+		WaitForSingleObject(started,INFINITE);
+		isGhost(temp->getForegroundMask());
+		ReleaseMutex(started);
 		if(thread_saving==TRUE){
 			LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
 			SaveDetectedToImage(temp,initPar.three);
@@ -349,13 +350,13 @@ void Start (initializationParams par, string path)
 	list<DetectedObject>::iterator i;
 	list<DetectedObject> det;
 
-	started = CreateEvent(NULL,FALSE,TRUE,NULL);
+	started = CreateMutex(NULL,FALSE,NULL);
 
 	list<preprocessStruct*>temporaryList;
 
 	int cicle_num = 0;
-	int divider=initPar.THREAD_NUM;
-	//int divider=numOfTotalFrames/initPar.THREAD_NUM;
+	//int divider=initPar.THREAD_NUM;
+	int divider=numOfTotalFrames/(initPar.THREAD_NUM-1);
 	int count=0;
 	int first=0;
 	int thread_num=0;
@@ -372,7 +373,7 @@ void Start (initializationParams par, string path)
 		index=0;
 		flag = cvGrabFrame(capture);
 
-		while (cicle_num>0 && flag){
+		while (cicle_num>=0 && flag){
 			img = cvRetrieveFrame(capture);
 			if(index%gap==0) {
 
@@ -409,7 +410,8 @@ void Start (initializationParams par, string path)
 	handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
 
 	size = thread_num-1;
-	WaitForSingleObject(handle.at(thread_num),INFINITE);
+	for(int waiting=1;waiting<=thread_num;waiting++)
+		WaitForSingleObject(handle.at(waiting),INFINITE);
 	//threadPool.CheckThreadStop();
 
 	/****************Reshadowing*****************/
