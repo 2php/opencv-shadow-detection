@@ -4,6 +4,9 @@
 #include "ThreadPool.h"
 #include <iostream>
 #include <string>
+#include <stdio.h>
+#include <io.h>
+#include <fcntl.h>
 
 #define TL 15
 

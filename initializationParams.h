@@ -39,7 +39,7 @@ typedef struct _initializationParams {
 			thread_saving(TRUE),
 			POOL(30),
 			wait(10),
-			three(TRUE),
+			three(FALSE),
 			saveShadow(FALSE){ }
   }initializationParams;
 

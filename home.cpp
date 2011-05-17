@@ -86,6 +86,15 @@ void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 	cvUpdateBGStatModel(result,bgModel);
 
 }
+bool isGhost(IplImage *detected){
+	int res=0;
+	cvNamedWindow("Supervisioning press Esc if is a ghost, else press enter",0);
+	cvShowImage("Supervisioning press Esc if is a ghost, else press enter",detected);
+	res = cvWaitKey(0);
+	cvDestroyAllWindows();
+	if(res == 27) return TRUE;
+	else return FALSE;
+}
 
 void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 	list<DetectedObject*>::iterator i;
@@ -134,7 +143,7 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 			cvReleaseImage(&salient);
 			cvReleaseImage(&frame);
 			cvReleaseImage(&result);
-		}
+			}
 	}
 	catch (exception& e){
 		throw e.what();
@@ -159,6 +168,8 @@ DWORD WINAPI Thread(void* param)
 		temp = new FrameObject((*j)->frame,(*j)->background,(*j)->salient, count);
 		count++;
 		temp->detectAll(initPar);
+		//if(!isGhost(temp->detectedObject...))
+
 		if(thread_saving==TRUE){
 			LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
 			SaveDetectedToImage(temp,initPar.three);
@@ -241,7 +252,9 @@ DWORD WINAPI Delivery(void *param)
 
 		try{
 			for(j=frame.begin(); j != frame.end(); j++){
-				SaveDetectedToImage((*j),initPar.three);
+				
+				if(!isGhost((*j)->getForegroundMask()))
+					SaveDetectedToImage((*j),initPar.three);
 				(*j)->~FrameObject();
 			}
 
@@ -336,7 +349,7 @@ void Start (initializationParams par, string path)
 	list<DetectedObject>::iterator i;
 	list<DetectedObject> det;
 
-	started = CreateEvent(NULL,FALSE,FALSE,NULL);
+	started = CreateEvent(NULL,FALSE,TRUE,NULL);
 
 	list<preprocessStruct*>temporaryList;
 
