@@ -17,18 +17,6 @@ int gap;
 //Parametri delle immagini memorizzate su disco
 int p[3];    	
 
-
-
-template <class T>
-string to_string(T t, int n,bool saving = FALSE)
-{
-  std::ostringstream oss;
-  if(saving) 
-	  oss << ".\\detected\\frame" << t << "_object" << n << ".jpg";
-  else oss << n << t;
-  return oss.str();
-}
-
 void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 	IplImage *source = cvCloneImage(frame.getFrame());
 	CvSize size = cvGetSize(source);
@@ -99,44 +87,60 @@ void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 
 }
 
-void SaveDetectedToImage(FrameObject* currentFrame){
-		list<DetectedObject*>::iterator i;
-		list<DetectedObject*> det;
-		try{
-			det = currentFrame->getDetectedObject();
-			int n = 0;
-			for(i=det.begin(); i != det.end(); ++i){
-				//reShadowing((*j),bgModel);
-				n++;
-				IplImage *frame=currentFrame->getFrame();
-				IplImage *result=currentFrame->getFrame();
-				IplImage *salient=currentFrame->getSalientMask();
-				cvZero(result);
-				cvOr(frame,result,result,(*i)->mvoMask);		
-				cvSaveImage(to_string(currentFrame->getFrameNumber(),n,TRUE).c_str(),result,p);
-
-				cvReleaseImage(&salient);
-				cvReleaseImage(&frame);
-				cvReleaseImage(&result);
+void SaveDetectedToImage(FrameObject* currentFrame,bool three){
+	list<DetectedObject*>::iterator i;
+	list<DetectedObject*> det;
+	try{
+		det = currentFrame->getDetectedObject();
+		int n = 0;
+		stringstream filename;
+		string temp,tempS;
+		CreateDirectory("detected",NULL);
+		for(i=det.begin(); i != det.end(); ++i){
+			//reShadowing((*j),bgModel);
+			n++;
+			IplImage *frame=currentFrame->getFrame();
+			IplImage *result=currentFrame->getFrame();
+			IplImage *salient=currentFrame->getSalientMask();
+			cvZero(result);
+			cvOr(frame,result,result,(*i)->mvoMask); 
+			if(three){
+				filename << "detected/frame"<< currentFrame->getFrameNumber();
+				filename >> temp;
+				CreateDirectory(temp.c_str(),NULL);
+				filename.clear();
+				filename << "detected/frame"<< currentFrame->getFrameNumber() << "/object" << n << ".jpg";
+				filename >> temp;
+				if(initPar.saveShadow==TRUE) {
+					filename.clear();
+					filename << "detected/frame"<< currentFrame->getFrameNumber() << "/shadow" << n << ".jpg"; 
+					filename >> tempS;
+					cvSaveImage(tempS.c_str(),(*i)->shadowMask,p);	
+				}
 			}
+			else{
+				filename << "detected/frame"<< currentFrame->getFrameNumber() << "_object" << n << ".jpg"; 
+				filename >> temp;
+				if(initPar.saveShadow==TRUE){
+					filename.clear();
+					filename << "detected/frame"<< currentFrame->getFrameNumber() << "_shadow" << n << ".jpg"; 
+					filename >> tempS;
+					cvSaveImage(tempS.c_str(),(*i)->shadowMask,p);
+				}
+			}
+			
+			cvSaveImage(temp.c_str(),result,p);
+
+			cvReleaseImage(&salient);
+			cvReleaseImage(&frame);
+			cvReleaseImage(&result);
 		}
-		catch (exception& e){
-			throw e.what();
-		}
+	}
+	catch (exception& e){
+		throw e.what();
+	}
 }
 
-typedef struct _threadParam {
-	IplImage* background;
-	list<IplImage*> salient;
-	list<IplImage*> frameList;
-	int numOfFirstFrame;
-	int threadNum;
-   // costruttore della struttura
-	_threadParam() : 
-   	background(NULL), frameList(NULL){ }
-    _threadParam(IplImage* _background,list<IplImage*> lista,int n,int thread,list<IplImage*> _salient) : 
-   	background(_background), frameList(lista), numOfFirstFrame(n),threadNum(thread),salient(_salient){ }
-  }threadParam;
 
 DWORD WINAPI Thread(void* param)
   { 
@@ -146,26 +150,24 @@ DWORD WINAPI Thread(void* param)
 	threadParam &pa=*static_cast<threadParam *>(myData);
 	list<FrameObject*> myFrames;
 	int count = pa.numOfFirstFrame;
-	list<IplImage*>::iterator j;
-	list<IplImage*>::iterator s;
+	list<preprocessStruct*>::iterator j;
 
 	LOG4CXX_INFO(loggerThread,"Thread "<< pa.threadNum << " started");	
-	cameraCorrection(pa.background,pa.background,MEDIAN,1.1,5);
 	
-	for(j=pa.frameList.begin(),s=pa.salient.begin(); j != pa.frameList.end(), s != pa.salient.end(); j++,s++){
-		temp = new FrameObject((*j),pa.background, (*s),count);
+	for(j=pa.child.begin(); j != pa.child.end();j++){
+		cameraCorrection((*j)->background,(*j)->background,MEDIAN,1.1,5);		
+		temp = new FrameObject((*j)->frame,(*j)->background,(*j)->salient, count);
 		count++;
 		temp->detectAll(initPar);
 		if(thread_saving==TRUE){
 			LOG4CXX_DEBUG(loggerThread,"Saving detected to file");
-			SaveDetectedToImage(temp);
+			SaveDetectedToImage(temp,initPar.three);
 			temp->~FrameObject();
 		}
 		else{	
 			myFrames.push_back(dynamic_cast<FrameObject*>(temp));
 		}
  	}
-	cvReleaseImage(&pa.background);
 
 	if(thread_saving==TRUE) {
 		LOG4CXX_INFO(loggerThread,"Stopping thread " << pa.threadNum);	
@@ -201,7 +203,7 @@ DWORD WINAPI Thread(void* param)
 	}
 	SetEvent(started);
 	ReleaseMutex(mutex);
-	LOG4CXX_INFO(loggerThread,"Thread n# " << pa.threadNum << ": " << suc << " on "<< pa.frameList.size() << " accoded");
+	LOG4CXX_INFO(loggerThread,"Thread n# " << pa.threadNum << ": " << suc << " on "<< pa.child.size() << " accoded");
 	while(TRUE){
 			if(handle.size() > pa.threadNum+1) break;	
 		}
@@ -239,7 +241,7 @@ DWORD WINAPI Delivery(void *param)
 
 		try{
 			for(j=frame.begin(); j != frame.end(); j++){
-				SaveDetectedToImage((*j));
+				SaveDetectedToImage((*j),initPar.three);
 				(*j)->~FrameObject();
 			}
 
@@ -336,8 +338,7 @@ void Start (initializationParams par, string path)
 
 	started = CreateEvent(NULL,FALSE,FALSE,NULL);
 
-	list<IplImage*>sal;
-	list<IplImage*>lista;
+	list<preprocessStruct*>temporaryList;
 
 	int cicle_num = 0;
 	int count=0;
@@ -345,25 +346,30 @@ void Start (initializationParams par, string path)
 	int thread_num=0;
 	int index;
 	int flag = TRUE;
+	preprocessStruct *temp;
+
 	threadPool.Run(Delivery,NULL,High);
 	//_beginthread(Delivery,0,NULL);
 	while(thread_num<initPar.THREAD_NUM && flag){
-		sal.clear();
-		lista.clear();
+		temporaryList.clear();
 		first = count;
 		cicle_num = numOfTotalFrames/initPar.THREAD_NUM;
 		index=0;
 		flag = cvGrabFrame(capture);
+
 		while (cicle_num>=0 && flag){
 			img = cvRetrieveFrame(capture);
 			if(index%gap==0) {
-				if(cicle_background != 1)
-					cvUpdateBGStatModel(img,bgModel);
-				cameraCorrection(img,img,MEDIAN,1.1,5);
-				lista.push_back(cvCloneImage(img));
+
+															    //<-------------				
+				if(cicle_background != 1)						//				|
+					cvUpdateBGStatModel(img,bgModel);			//				|	influenza in background update
+				cameraCorrection(img,img,MEDIAN,1.1,5);  		//>-------------
+
+				temp = new preprocessStruct(cvCloneImage(img),cvCloneImage(bgModel->background),cvCloneImage(bgModel->foreground));
+				temporaryList.push_back(temp);					
 				cicle_num--;
 				count++;			
-				sal.push_back(cvCloneImage(bgModel->foreground));
 			}
 			index++;
 			flag = cvGrabFrame(capture);
@@ -372,7 +378,7 @@ void Start (initializationParams par, string path)
 		/*Gestione coda degli handle*/
 		handle.push_back(CreateEvent( NULL, FALSE, FALSE, NULL ));
 		/****************************/
-		threadPool.Run(Thread,(void*)new _threadParam(cvCloneImage(bgModel->background),lista,first,thread_num,sal),Low);		
+		threadPool.Run(Thread,(void*)new _threadParam(temporaryList,first,thread_num),Low);		
 		
 		if(thread_num%10==0 && thread_num !=0){ 
 			LOG4CXX_DEBUG(loggerMain,"Thread checkpoint (LOCK): waiting previous thread completition (thread n# "<<thread_num<<"");

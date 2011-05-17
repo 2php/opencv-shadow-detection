@@ -71,9 +71,12 @@ int ParameterMenu(){
 		cout << "4 - Delivery Service (enable/disable)" << endl;
 		cout << "5 - Background suppression threshold" << endl;	
 		cout << "6 - Shadow threshold" << endl;
-		cout << "7 - Set max concurrent thread" << endl;		
-		cout << "0 - TERMINATED" << endl;		
+		cout << "7 - Set max concurrent thread" << endl;
+		cout << "8 - Save in a three directories (enable/disable)" << endl;
+		cout << "9 - Save shadow (enable/disable)" << endl;
+		cout << "0 - TERMINATED" << endl;		 
 		cout << "Input: ";
+		cin.clear();
 		cin >> res;
 
 		switch(res){
@@ -113,6 +116,26 @@ int ParameterMenu(){
 				cout << "max concurrent: ";
 				cin >> initPar.wait;
 				break;
+			case 8:
+				if(initPar.three==TRUE){
+					initPar.three=FALSE;
+					cout << "Three foldering disabled" << endl;
+				}else{
+					initPar.three=TRUE;
+					cout << "Three foldering  enabled" << endl;
+				}
+				system("PAUSE");
+				break;
+			case 9:
+				if(initPar.saveShadow==TRUE){
+					initPar.saveShadow=FALSE;
+					cout << "Save shadow disabled" << endl;
+				}else{
+					initPar.saveShadow=TRUE;
+					cout << "Save shadow  enabled" << endl;
+				}
+				system("PAUSE");
+				break;
 			case 0:
 				return 0;
 			default:
@@ -142,6 +165,7 @@ int HomeMenu(){
 	cout << "3 - Change parameter" << endl;
 	cout << "0 - QUIT" << endl;
 	cout << "\nInput: ";
+	cin.clear();
 	cin>>res;
 	return res;
 }

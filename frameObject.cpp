@@ -18,6 +18,7 @@ FrameObject::FrameObject(){
 FrameObject::~FrameObject(){
 	try{
 		cvReleaseImage(&frame);
+		cvReleaseImage(&background);
 		cvReleaseImage(&foregroundMask);
 		cvReleaseImage(&salientForegroundMask);
 		cvReleaseBlobs(frameBlobs);
