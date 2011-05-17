@@ -148,6 +148,7 @@ int ParameterMenu(){
 }
 
 int HomeMenu(){
+	string AUTO="auto";
 	int res=-1;
 	string temp;
 	ClearScreen();
@@ -158,11 +159,11 @@ int HomeMenu(){
 	cout << "*-----------------------------------------------------------------------------*" << endl;
 	cout << "* ++ || Paolo Pino || ++ || Pierluigi Sottile || ++ || Vittorio Minacori|| ++ *" << endl;
 	cout << "*******************************************************************************" << endl;
-	cout << "\n -DEFAULT PARAMS----------------------------------------------------" << endl;	
-	cout << "| background training: 1 frame | Delivery service: OFF | gap = 10   |" << endl;
-	cout << "| background threshold: " << initPar.THRESHOLD << "                                          |" << endl;
-	cout << "| K: " << initPar.K << " | alfa: auto |  beta: auto | Th: auto | Ts: auto \t    |"<<endl;
-	cout << " -------------------------------------------------------------------" << endl;		
+	cout << "\n -DEFAULT PARAMS-------------------------------------------------------------" << endl;	
+	cout << "| background training: "<< initPar.cicle_background<<" frame | Delivery service off: "<< initPar.thread_saving<<" | gap = " << initPar.wait<< endl;
+	cout << "| background threshold: " << initPar.THRESHOLD << " | Save shadow: " << initPar.saveShadow << " | Foldering enable: " << initPar.three<< endl;
+	cout << "| Delta: " << initPar.Delta << " | alfa: "<<initPar.alfa<<" |  beta: "<<initPar.beta<<" | Th: "<<initPar.Th<<" | Ts: "<<initPar.Ts<<" \t    "<<endl;
+	cout << " ------------------------------------------------------------------------------" << endl;		
 	cout << "\n Stream: "<< videoPath << endl;	
 	cout << "\n1 - START"<< endl;
 	cout << "2 - Set video path"<< endl;

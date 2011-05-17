@@ -26,8 +26,8 @@ typedef struct _initializationParams {
 		int Delta; /**< Delta in \link shadowDetection */
 		int cicle_background; /**< numder of frame for background learning*/
 		bool thread_saving; /**< set TRUE to disable Delivery service*/
-		bool three; /**saving in a three directories*/
-		bool saveShadow;
+		bool three; /**save result mvo's in a three directories*/
+		bool saveShadow; /**save result shadows?*/
    ///Default constructor
         _initializationParams() : 
 			useDefault(1),
