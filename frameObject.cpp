@@ -52,7 +52,7 @@ FrameObject::FrameObject(IplImage * currentFrame, IplImage * currentBackground,I
 
 IplImage* FrameObject::getFrame(){return cvCloneImage(frame);}
 IplImage* FrameObject::getBackground(){return cvCloneImage(background);}
-IplImage* FrameObject::getForegroundMask(){return cvCloneImage(foregroundMask);}
+IplImage* FrameObject::getForegroundMask(){return foregroundMask;}
 IplImage* FrameObject::getSalientMask(){return salientForegroundMask;}
 int FrameObject::getFrameNumber(){return frameNumber;}
 

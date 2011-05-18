@@ -81,6 +81,7 @@ bool isGhost(IplImage *detected){
 void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 	list<DetectedObject*>::iterator i;
 	list<DetectedObject*> det;
+	IplImage *current=currentFrame->getFrame();
 	try{
 		det = currentFrame->getDetectedObject();
 		int n = 0;
@@ -99,7 +100,7 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 				filename.clear();
 				filename << "detected/frame"<< currentFrame->getFrameNumber() <<"/frame.jpg"; 
 				filename>>temp;
-				cvSaveImage(temp.c_str(),currentFrame->getFrame());
+				cvSaveImage(temp.c_str(),current);
 				filename.clear();
 				filename << "detected/frame"<< currentFrame->getFrameNumber() << "/object" << n << ".jpg";
 				filename >> temp;
@@ -113,7 +114,7 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 			else{
 				filename << "detected/frame"<< currentFrame->getFrameNumber() <<".jpg"; 
 				filename>>temp;
-				cvSaveImage(temp.c_str(),currentFrame->getFrame());
+				cvSaveImage(temp.c_str(),current);
 				filename.clear();
 				filename << "detected/frame"<< currentFrame->getFrameNumber() << "_object" << n << ".jpg"; 
 				filename >> temp;
@@ -127,6 +128,7 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 			
 			cvSaveImage(temp.c_str(),(*i)->mvo,p);
 			}
+		cvReleaseImage(&current);
 	}
 	catch (exception& e){
 		throw e.what();
