@@ -30,6 +30,8 @@ typedef struct _initializationParams {
 		bool saveShadow; /**save result shadows?*/
 		bool supervisioning; 
 		int fitting;
+		int minArea;
+		int maxArea;
    ///Default constructor
         _initializationParams() : 
 			useDefault(1),
@@ -44,7 +46,9 @@ typedef struct _initializationParams {
 			three(FALSE),
 			saveShadow(FALSE),
 			supervisioning(FALSE),
-			fitting(10){}
+			fitting(10),
+			minArea(200),
+			maxArea(1000){}
   }initializationParams;
 
 //extern struct initializationParams;

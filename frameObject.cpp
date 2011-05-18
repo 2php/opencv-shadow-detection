@@ -102,7 +102,7 @@ void FrameObject::detectAll(initializationParams initPar){
 			IplImage *labelImg=cvCreateImage(size, IPL_DEPTH_LABEL, 1);
 			unsigned int labeled=cvLabel(this->foregroundMask, labelImg,this->frameBlobs);
 			LOG4CXX_TRACE(loggerFrameObject, "Area Filtering");			
-			cvFilterByArea(this->frameBlobs,200,1000000);
+			cvFilterByArea(this->frameBlobs,initPar.minArea,initPar.maxArea);
 
 			IplImage *src = cvCreateImage(size,8,3);
 
