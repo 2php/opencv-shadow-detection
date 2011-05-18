@@ -77,6 +77,7 @@ int ParameterMenu(){
 		cout << "9 - Save shadow (enable/disable)" << endl;
 		cout << "10 - Supervisioning (enable/disable)" << endl;		
 		cout << "11 - Salient (enable/disable)" << endl;				
+		cout << "12 - Area filtering parameter" << endl;						
 		cout << "0 - TERMINATED" << endl;		 
 		cout << "Input: ";
 		cin>>temp;
@@ -161,6 +162,11 @@ int ParameterMenu(){
 				}
 				system("PAUSE");
 				break;
+			case 12:
+				cout << "Insert min area: ";
+				cin >> initPar.minArea;
+				cout << "Insert max area: ";
+				cin >> initPar.maxArea;
 			case 0:
 				return 0;
 			default:

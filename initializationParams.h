@@ -32,7 +32,8 @@ typedef struct _initializationParams {
 		int fitting;
 		int minArea;
 		int maxArea;
-   ///Default constructor
+	    int maxSupervisioned;
+		///Default constructor
         _initializationParams() : 
 			useDefault(1),
 			THRESHOLD(DEFAULT_THRESHOLD),
@@ -48,7 +49,8 @@ typedef struct _initializationParams {
 			supervisioning(FALSE),
 			fitting(10),
 			minArea(200),
-			maxArea(1000){}
+			maxArea(1000),
+			maxSupervisioned(20){}
   }initializationParams;
 
 //extern struct initializationParams;

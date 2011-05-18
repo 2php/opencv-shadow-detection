@@ -150,6 +150,8 @@ DWORD WINAPI Thread(void* param)
 	list<DetectedObject*> det;
 	bool reshadowed=FALSE;
 	bool ghost=FALSE;
+	int supervisioned=0;
+
 	LOG4CXX_INFO(loggerThread,"Thread "<< pa.threadNum << " started");	
 	
 	newBackground=cvCloneImage((*pa.child.begin())->background);
@@ -168,7 +170,9 @@ DWORD WINAPI Thread(void* param)
 			WaitForSingleObject(started,INFINITE);
 			det=temp->getDetectedObject();
 			for(detIt=det.begin();detIt!=det.end();detIt++){
+				if(supervisioned > initPar.maxSupervisioned) break;
 				ghost=isGhost((*detIt)->mvo);
+				supervisioned++;
 				if(ghost) (*detIt)->isGhost = TRUE;
 			}
 			ReleaseMutex(started);
