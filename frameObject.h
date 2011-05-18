@@ -28,14 +28,21 @@ typedef struct _DetectedObject
 	//Blobs dell'mvo*/	
 	CvBlobs mvoBlobs;
 
+	IplImage *mvo;
+
+	bool isGhost;
+
 	//!Constructor
 	_DetectedObject(CvSize size,int depth){
 		try{
+		mvo = cvCreateImage(size,depth,3);
+		cvZero(mvo);
 		totalMask = cvCreateImage(size,depth,1);				
 		mvoMask = cvCreateImage(size,depth,1);		
 		shadowMask = cvCreateImage(size,depth,1);
 		invertedShadowMask = cvCreateImage(size,depth,1);
 		mvoBlobs = CvBlobs();
+		isGhost=FALSE;
 		}
 		catch(exception& e)
 		{
@@ -47,6 +54,7 @@ typedef struct _DetectedObject
 	~_DetectedObject(){
 		try{
 			cvReleaseImage(&totalMask);
+			cvReleaseImage(&mvo);			
 			cvReleaseImage(&mvoMask);
 			cvReleaseImage(&shadowMask);
 			cvReleaseImage(&invertedShadowMask);
@@ -89,6 +97,7 @@ private:
 	//Blobs della scena*/	
 	CvBlobs frameBlobs;
 
+	bool isToSave(IplImage* vMask,IplImage *mask,int threashold);
 public:
 	/*!
 	//default constructor*/

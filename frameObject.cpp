@@ -30,7 +30,7 @@ FrameObject::~FrameObject(){
 	}
 	catch(exception& e){
 		throw e.what();
-		LOG4CXX_ERROR(loggerFrameObject, "Error in distruction Object: "<< e.what());
+		LOG4CXX_ERROR(loggerFrameObject, "Error in distruction FrameObject: "<< e.what());
 	}
 }
 
@@ -53,11 +53,31 @@ FrameObject::FrameObject(IplImage * currentFrame, IplImage * currentBackground,I
 IplImage* FrameObject::getFrame(){return cvCloneImage(frame);}
 IplImage* FrameObject::getBackground(){return cvCloneImage(background);}
 IplImage* FrameObject::getForegroundMask(){return cvCloneImage(foregroundMask);}
-IplImage* FrameObject::getSalientMask(){return cvCloneImage(salientForegroundMask);}
+IplImage* FrameObject::getSalientMask(){return salientForegroundMask;}
 int FrameObject::getFrameNumber(){return frameNumber;}
+
+bool FrameObject::isToSave(IplImage *vMask,IplImage *mask,int threashold){
+	int _threashold=0;
+	uchar* data_vMask = (uchar *)vMask->imageData;
+	int step_vMask = vMask->widthStep/sizeof(uchar);
+	uchar* data_mask = (uchar *)mask->imageData;
+	int step_mask = mask->widthStep/sizeof(uchar);
+	
+	for(int i=0; i<vMask->height;i++){
+		for(int j=0; j<vMask->width;j++){
+				if((float)data_mask[i*step_mask+j] == 255){
+					_threashold++;
+				}
+		}
+	}
+
+	if(_threashold<threashold) return FALSE;
+	return TRUE;
+}
 
 void FrameObject::detectAll(initializationParams initPar){
 		LOG4CXX_DEBUG(loggerFrameObject , "Detection All");
+		int fitting=initPar.fitting;
 		try{
 			IplImage * img =  getFrame();
 			IplImage * background = getBackground();
@@ -111,7 +131,8 @@ void FrameObject::detectAll(initializationParams initPar){
 
 						/*LA BLOB DEVE ESSERE UN SALIENT FOREGROUND*/
 				cvReleaseImage(&label);
-			
+
+				cvOr(frame,temp->mvo,temp->mvo,temp->mvoMask); 
 			//IplImage * t = cvCloneImage(temp.mvoMask);
 			//uchar* datat    = (uchar *)t->imageData;
 			//int stept = t->widthStep/sizeof(uchar);
@@ -121,11 +142,15 @@ void FrameObject::detectAll(initializationParams initPar){
 			//		datat[i*stept+j] = 255;
 			//	}
 			//}
-
-			//cvOr(temp.mvoMask,this->salientForegroundMask,temp.totalMask,temp.mvoMask);
+				IplImage * verityMask=cvCloneImage(temp->mvoMask);
+				cvZero(verityMask);
+				cvAnd(temp->mvoMask,this->getSalientMask(),verityMask,temp->mvoMask);
+				if(isToSave(verityMask,temp->mvoMask,fitting)){
 				//salvo il risultato nella lista
-				detectedObject.push_front(temp);
-				temp =  new DetectedObject(size,img->depth);
+					detectedObject.push_front(temp);
+					temp = new DetectedObject(size,img->depth);
+				}
+				cvReleaseImage(&verityMask);
 			}
 		
 		temp->~_DetectedObject();

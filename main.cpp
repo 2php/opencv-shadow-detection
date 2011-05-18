@@ -76,6 +76,7 @@ int ParameterMenu(){
 		cout << "8 - Save in a three directories (enable/disable)" << endl;
 		cout << "9 - Save shadow (enable/disable)" << endl;
 		cout << "10 - Supervisioning (enable/disable)" << endl;		
+		cout << "11 - Salient (enable/disable)" << endl;				
 		cout << "0 - TERMINATED" << endl;		 
 		cout << "Input: ";
 		cin>>temp;
@@ -146,6 +147,17 @@ int ParameterMenu(){
 				}else{
 					initPar.supervisioning=TRUE;
 					cout << "Supervisioning enabled" << endl;
+				}
+				system("PAUSE");
+				break;
+			case 11:
+				if(initPar.fitting==FALSE){
+					cout << "Salient selection enabled" << endl;
+					cout << "Insert an area threashold. Number of fitting pixel: ";
+					cin>>initPar.fitting;
+				}else{
+					initPar.fitting=FALSE;
+					cout << "Salient selection disabled" << endl;
 				}
 				system("PAUSE");
 				break;

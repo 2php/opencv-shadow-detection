@@ -17,14 +17,11 @@ int gap;
 //Parametri delle immagini memorizzate su disco
 int p[3];    	
 
-void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
-	IplImage *source = cvCloneImage(frame.getFrame());
+void reShadowing(FrameObject *frame, IplImage *background) {
+	IplImage *source = frame->getFrame();
 	CvSize size = cvGetSize(source);
 	IplImage *ghostMask = cvCreateImage(size,8,1);
-	IplImage *src = cvCreateImage(size,8,3);
-	IplImage *result = cvCloneImage(bgModel->background);
 	cvZero(ghostMask);
-	cvZero(src);
 
 	//al momento costruisce una maschera dalle blob...si potrebbe passare direttamente la maschera dei ghost e saltare questo ciclo
 	//for (CvBlobs::const_iterator it=blobs.begin(); it!=blobs.end(); ++it)
@@ -36,10 +33,12 @@ void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 	list<DetectedObject*>::iterator it;
 	list<DetectedObject*> det;
 	//det = frame.getDetectedGhost();
-	det = frame.getDetectedObject();
+	det = frame->getDetectedObject();
 	///
 	for(it=det.begin(); it != det.end(); ++it){
-		cvOr(ghostMask,(*it)->totalMask,ghostMask);
+		if((*it)->isGhost){
+			cvOr(ghostMask,(*it)->totalMask,ghostMask);
+		}
 	}
 
 	int channel = source->nChannels;
@@ -47,31 +46,16 @@ void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 	uchar* dataSrc = (uchar *)source->imageData;
 	int stepSrc = source->widthStep/sizeof(uchar);
 	
-	uchar* dataBkg= (uchar *)result->imageData;
-	int stepBkg = result->widthStep/sizeof(uchar);
+	uchar* dataBkg= (uchar *)background->imageData;
+	int stepBkg = background->widthStep/sizeof(uchar);
 	
 	uchar* dataGhost = (uchar *)ghostMask->imageData;
 	int stepGhost = ghostMask->widthStep/sizeof(uchar);
-	
-	/*uchar* dataS = (uchar *)S->imageData;
-	int stepS = S->widthStep/sizeof(uchar);
-	
-	uchar* dataV    = (uchar *)V->imageData;
-	int stepV = V->widthStep/sizeof(uchar);
-	
-	uchar* databH = (uchar *)bH->imageData;
-	int stepbH = bH->widthStep/sizeof(uchar);
-	
-	uchar* databS = (uchar *)bS->imageData;
-	int stepbS = bS->widthStep/sizeof(uchar);
-	
-	uchar* databV    = (uchar *)bV->imageData;
-	int stepbV = bV->widthStep/sizeof(uchar);*/
 
 	int i,j,k;
 
-	for(i=0; i<src->height;i++){
-		for(j=0; j<src->width;j++){
+	for(i=0; i<source->height;i++){
+		for(j=0; j<source->width;j++){
 			if((float)dataGhost[i*stepGhost+j] == 255){
 				for(k=0;k<channel;k++)
 					dataBkg[i*stepBkg+j*channel+k]=dataSrc[i*stepSrc+j*channel+k];
@@ -79,13 +63,11 @@ void reShadowing(FrameObject frame, CvBGStatModel *bgModel) {
 			}
 		}
 	}
-	
-	cvShowImage("result",result);
-	cvWaitKey(1);
 
-	cvUpdateBGStatModel(result,bgModel);
-
+	cvReleaseImage(&ghostMask);
+	cvReleaseImage(&source);
 }
+
 bool isGhost(IplImage *detected){
 	int res=0;
 	cvNamedWindow("Supervisioning press Esc if is a ghost, else press enter",0);
@@ -105,18 +87,19 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 		stringstream filename;
 		string temp,tempS;
 		CreateDirectory("detected",NULL);
+
 		for(i=det.begin(); i != det.end(); ++i){
 			//reShadowing((*j),bgModel);
 			n++;
-			IplImage *frame=currentFrame->getFrame();
-			IplImage *result=currentFrame->getFrame();
-			IplImage *salient=currentFrame->getSalientMask();
-			cvZero(result);
-			cvOr(frame,result,result,(*i)->mvoMask); 
+
 			if(three){
 				filename << "detected/frame"<< currentFrame->getFrameNumber();
 				filename >> temp;
 				CreateDirectory(temp.c_str(),NULL);
+				filename.clear();
+				filename << "detected/frame"<< currentFrame->getFrameNumber() <<"/frame.jpg"; 
+				filename>>temp;
+				cvSaveImage(temp.c_str(),currentFrame->getFrame());
 				filename.clear();
 				filename << "detected/frame"<< currentFrame->getFrameNumber() << "/object" << n << ".jpg";
 				filename >> temp;
@@ -128,6 +111,10 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 				}
 			}
 			else{
+				filename << "detected/frame"<< currentFrame->getFrameNumber() <<".jpg"; 
+				filename>>temp;
+				cvSaveImage(temp.c_str(),currentFrame->getFrame());
+				filename.clear();
 				filename << "detected/frame"<< currentFrame->getFrameNumber() << "_object" << n << ".jpg"; 
 				filename >> temp;
 				if(initPar.saveShadow==TRUE){
@@ -138,11 +125,7 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 				}
 			}
 			
-			cvSaveImage(temp.c_str(),result,p);
-
-			cvReleaseImage(&salient);
-			cvReleaseImage(&frame);
-			cvReleaseImage(&result);
+			cvSaveImage(temp.c_str(),(*i)->mvo,p);
 			}
 	}
 	catch (exception& e){
@@ -159,18 +142,33 @@ DWORD WINAPI Thread(void* param)
 	threadParam &pa=*static_cast<threadParam *>(myData);
 	list<FrameObject*> myFrames;
 	int count = pa.numOfFirstFrame;
+	IplImage *newBackground;
 	list<preprocessStruct*>::iterator j;
+	list<DetectedObject*>::iterator detIt;
+	list<DetectedObject*> det;
+	bool reshadowed=FALSE;
 	bool ghost=FALSE;
 	LOG4CXX_INFO(loggerThread,"Thread "<< pa.threadNum << " started");	
 	
+	newBackground=cvCloneImage((*pa.child.begin())->background);
+
 	for(j=pa.child.begin(); j != pa.child.end();j++){
-		cameraCorrection((*j)->background,(*j)->background,MEDIAN,1.1,5);		
-		temp = new FrameObject((*j)->frame,(*j)->background,(*j)->salient, count);
+		if(!reshadowed){
+			cameraCorrection((*j)->background,(*j)->background,MEDIAN,1.1,5);		
+			temp = new FrameObject((*j)->frame,(*j)->background,(*j)->salient, count);
+		}
+		else{
+			temp = new FrameObject((*j)->frame,cvCloneImage(newBackground),(*j)->salient, count);
+		}
 		count++;
 		temp->detectAll(initPar);
 		if(initPar.supervisioning==TRUE){
 			WaitForSingleObject(started,INFINITE);
-			ghost=isGhost(temp->getForegroundMask());
+			det=temp->getDetectedObject();
+			for(detIt=det.begin();detIt!=det.end();detIt++){
+				ghost=isGhost((*detIt)->mvo);
+				if(ghost) (*detIt)->isGhost = TRUE;
+			}
 			ReleaseMutex(started);
 		}
 		if(!ghost){
@@ -185,11 +183,16 @@ DWORD WINAPI Thread(void* param)
 		}
 		else{
 			if(thread_saving==TRUE){
+				LOG4CXX_DEBUG(loggerThread,"Reshadowing");
+				reShadowing(temp,newBackground);
+				reshadowed=TRUE;
 				LOG4CXX_DEBUG(loggerThread,"Deleting ghost from memory");
 				temp->~FrameObject();
 			}
 		}
  	}
+
+	cvReleaseImage(&newBackground);
 
 	if(thread_saving==TRUE) {
 		LOG4CXX_INFO(loggerThread,"Stopping thread " << pa.threadNum);	

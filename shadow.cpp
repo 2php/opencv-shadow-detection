@@ -5,6 +5,7 @@ LoggerPtr loggershadowDetection(Logger::getLogger( "Shadow Detection"));
 LoggerPtr loggerBackgroundSuppression(Logger::getLogger( "Background Suppression"));
 LoggerPtr loggerBlobAnalysis(Logger::getLogger( "Blob analysis"));
 
+
 /*!
 //void cameraCorrection(IplImage* src,IplImage* dst,int type, double A, int size)
 //	Corregge un singolo frame:

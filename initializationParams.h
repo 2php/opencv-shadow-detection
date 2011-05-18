@@ -29,6 +29,7 @@ typedef struct _initializationParams {
 		bool three; /**save result mvo's in a three directories*/
 		bool saveShadow; /**save result shadows?*/
 		bool supervisioning; 
+		int fitting;
    ///Default constructor
         _initializationParams() : 
 			useDefault(1),
@@ -42,7 +43,8 @@ typedef struct _initializationParams {
 			wait(10),
 			three(FALSE),
 			saveShadow(FALSE),
-			supervisioning(FALSE){}
+			supervisioning(FALSE),
+			fitting(10){}
   }initializationParams;
 
 //extern struct initializationParams;
