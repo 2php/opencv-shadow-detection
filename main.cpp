@@ -66,18 +66,18 @@ int ParameterMenu(){
 	while(TRUE){	
 		ClearScreen();
 		cout << "Parameter Menu:";
-		cout << "\n1 - Thread number"<< endl;
-		cout << "2 - Number of processed frame for every single thread"<< endl;		
-		cout << "3 - Number of frame for background learning"<< endl;
-		cout << "4 - Delivery Service (enable/disable)" << endl;
-		cout << "5 - Background suppression threshold" << endl;	
-		cout << "6 - Shadow threshold" << endl;
-		cout << "7 - Set max concurrent thread" << endl;
-		cout << "8 - Save in a three directories (enable/disable)" << endl;
-		cout << "9 - Save shadow (enable/disable)" << endl;
-		cout << "10 - Supervisioning (enable/disable)" << endl;		
-		cout << "11 - Salient (enable/disable)" << endl;				
-		cout << "12 - Area filtering parameter" << endl;						
+		cout << "\n1 - Thread number ("<< initPar.POOL <<")"<< endl;
+		cout << "2 - Number of processed frame for every single thread ("<< initPar.THREAD_NUM<<")"<< endl;		
+		cout << "3 - Number of frame for background learning ("<< initPar.cicle_background<<")"<< endl;
+		cout << "4 - Delivery Service (enable/disable) ("<< initPar.thread_saving <<")" << endl;
+		cout << "5 - Background suppression threshold ("<< initPar.THRESHOLD<<")" << endl;	
+		cout << "6 - Shadow threshold (alfa: "<< initPar.alfa<<", beta: "<<initPar.beta<<", Th: "<<initPar.Th<<", Ts: "<<initPar.Ts<<")" << endl;
+		cout << "7 - Set max concurrent thread ("<< initPar.wait <<")" << endl;
+		cout << "8 - Save in a three directories (enable/disable) ("<< initPar.three <<")" << endl;
+		cout << "9 - Save shadow (enable/disable) ("<< initPar.saveShadow<<")" << endl;
+		cout << "10 - Supervisioning (enable/disable) ("<< initPar.supervisioning <<")" << endl;		
+		cout << "11 - Salient (enable/disable) ("<< initPar.fitting<<")" << endl;				
+		cout << "12 - Area filtering parameter (minArea: "<< initPar.minArea<<", maxArea: "<<initPar.maxArea<<")" << endl;						
 		cout << "0 - TERMINATED" << endl;		 
 		cout << "Input: ";
 		cin>>temp;
@@ -167,6 +167,9 @@ int ParameterMenu(){
 				cin >> initPar.minArea;
 				cout << "Insert max area: ";
 				cin >> initPar.maxArea;
+				system("PAUSE");
+				break;
+
 			case 0:
 				return 0;
 			default:

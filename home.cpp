@@ -431,7 +431,8 @@ void Start (initializationParams par, string path)
 
 	size = thread_num-1;
 	for(int waiting=1;waiting<=thread_num;waiting++)
-		WaitForSingleObject(handle.at(waiting),INFINITE);
+		if((waiting%gap)!=0)
+			WaitForSingleObject(handle.at(waiting),INFINITE);
 	//threadPool.CheckThreadStop();
 
 	/****************Reshadowing*****************/

@@ -24,7 +24,7 @@
     <SccLocalPath />
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
-    <ProjectName>Test</ProjectName>
+    <ProjectName>openCV2_1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -83,7 +83,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>C:/Development/OpenCV2.1/include;C:/Development/OpenCV2.1/include/opencv;c:\Development\cvblob\cvBlob;C:\Users\Paolo\Documents\Visual Studio 2010\Projects\Test\lib\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:/Development/OpenCV2.1/include;C:/Development/OpenCV2.1/include/opencv;c:\Development\cvblob\cvBlob;$(SolutionDir)\lib\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -107,7 +107,7 @@
     <Link>
       <AdditionalOptions> /machine:x64 /debug %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;cxcore210d.lib;cv210d.lib;ml210d.lib;highgui210d.lib;cvaux210d.lib;log4cxx.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:/Development/OpenCV2.1/VS2010/lib/Debug"";C:/Development/OpenCV2.1/VS2010/lib/Debug""/$(Configuration);C:\Users\Paolo\Documents\Visual Studio 2010\Projects\Test\lib\apache-log4cxx-0.10.0\projects\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:/Development/OpenCV2.1/VS2010/lib/Debug"";C:/Development/OpenCV2.1/VS2010/lib/Debug""/$(Configuration);$(SolutionDir)\lib\apache-log4cxx-0.10.0\projects\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>C:/Users/Paolo/Documents/Visual Studio 2010/Projects/openCV2_1/Debug/openCV2_1.lib</ImportLibrary>
       <ProgramDataBaseFileName>C:/Users/Paolo/Documents/Visual Studio 2010/Projects/openCV2_1/Debug/openCV2_1.pdb</ProgramDataBaseFileName>
