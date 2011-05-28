@@ -1,40 +1,16 @@
 #include "home.h"
 
-LoggerPtr loggerDelivery(Logger::getLogger( "Delivery"));
-LoggerPtr loggerMain(Logger::getLogger( "main"));
-LoggerPtr loggerThread(Logger::getLogger( "Thread"));
-
-/*!
-//lista dei frame elaborati*/
-static list<FrameObject*> frame;
-static list<FrameObject> ordered;
-static vector<HANDLE> handle;
-static HANDLE mutex,started;
-volatile int size;
-bool thread_saving;
-int gap;
-
-//Parametri delle immagini memorizzate su disco
-int p[3];    	
 
 void reShadowing(FrameObject *frame, IplImage *background) {
 	IplImage *source = frame->getFrame();
 	CvSize size = cvGetSize(source);
 	IplImage *ghostMask = cvCreateImage(size,8,1);
 	cvZero(ghostMask);
-
-	//al momento costruisce una maschera dalle blob...si potrebbe passare direttamente la maschera dei ghost e saltare questo ciclo
-	//for (CvBlobs::const_iterator it=blobs.begin(); it!=blobs.end(); ++it)
- //       {
-	//		cvRenderBlob(labelImg,it->second,source,src,CV_BLOB_RENDER_COLOR);
- //       }
-
 	
 	list<DetectedObject*>::iterator it;
 	list<DetectedObject*> det;
-	//det = frame.getDetectedGhost();
 	det = frame->getDetectedObject();
-	///
+
 	for(it=det.begin(); it != det.end(); ++it){
 		if((*it)->isGhost){
 			cvOr(ghostMask,(*it)->totalMask,ghostMask);
@@ -92,7 +68,6 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 		for(i=det.begin(); i != det.end(); ++i){
 			//reShadowing((*j),bgModel);
 			n++;
-
 			if(three){
 				filename << "detected/frame"<< currentFrame->getFrameNumber();
 				filename >> temp;
@@ -127,6 +102,7 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 			}
 			
 			cvSaveImage(temp.c_str(),(*i)->mvo,p);
+			filename.clear();
 			}
 		cvReleaseImage(&current);
 	}
@@ -367,6 +343,8 @@ void Start (initializationParams par, string path)
 	}
 	cout << endl;
 	LOG4CXX_INFO(loggerMain,"Modello del background creato correttamente");
+	cvShowImage("bk",bgModel->background);
+	cvWaitKey(0);
 	list<DetectedObject>::iterator i;
 	list<DetectedObject> det;
 

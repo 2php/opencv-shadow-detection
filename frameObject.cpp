@@ -128,20 +128,11 @@ void FrameObject::detectAll(initializationParams initPar){
 				//creo l'ogetto blob dell'ogetto necessario per il traking
 				IplImage *label=cvCreateImage(size, IPL_DEPTH_LABEL, 1);
 				unsigned int labelResult=cvLabel(temp->mvoMask, label, temp->mvoBlobs);
-
-						/*LA BLOB DEVE ESSERE UN SALIENT FOREGROUND*/
 				cvReleaseImage(&label);
-
+				//Ritaglio dell'mvo
 				cvOr(frame,temp->mvo,temp->mvo,temp->mvoMask); 
-			//IplImage * t = cvCloneImage(temp.mvoMask);
-			//uchar* datat    = (uchar *)t->imageData;
-			//int stept = t->widthStep/sizeof(uchar);
 
-			//for(int i=0; i<t->height;i++){
-			//	for(int j=0; j<t->width;j++){
-			//		datat[i*stept+j] = 255;
-			//	}
-			//}
+				/*LA BLOB DEVE ESSERE UN SALIENT FOREGROUND*/
 				IplImage * verityMask=cvCloneImage(temp->mvoMask);
 				cvZero(verityMask);
 				cvAnd(temp->mvoMask,this->getSalientMask(),verityMask,temp->mvoMask);

@@ -26,13 +26,13 @@ typedef struct _initializationParams {
 		int Delta; /**< Delta in \link shadowDetection */
 		int cicle_background; /**< numder of frame for background learning*/
 		bool thread_saving; /**< set TRUE to disable Delivery service*/
-		bool three; /**save result mvo's in a three directories*/
-		bool saveShadow; /**save result shadows?*/
-		bool supervisioning; 
-		int fitting;
-		int minArea;
-		int maxArea;
-	    int maxSupervisioned;
+		bool three; /**<save result mvo's in a three directories*/
+		bool saveShadow; /**<save result shadows?*/
+		bool supervisioning; /**< set TRUE to enable supervisioning*/
+	    int maxSupervisioned;/**< num of max supervisioned frame for each thread (only if supervisioning == TRUE)*/		
+		int fitting; /**< set 0 to disable salient selection else the num of minimum fitting pixel*/
+		int minArea;/**< min area in area suppression*/
+		int maxArea;/**< max area in area suppression*/
 		///Default constructor
         _initializationParams() : 
 			useDefault(1),

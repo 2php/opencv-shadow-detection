@@ -10,8 +10,45 @@
 
 #define TL 15
 
+static LoggerPtr loggerDelivery(Logger::getLogger( "Delivery"));
+static LoggerPtr loggerMain(Logger::getLogger( "main"));
+static LoggerPtr loggerThread(Logger::getLogger( "Thread"));
+
+/*!
+//lista dei frame elaborati*/
+static list<FrameObject*> frame;
+static list<FrameObject> ordered;
+static vector<HANDLE> handle;
+static HANDLE mutex,started;
 static initializationParams initPar;
+static volatile int size;
+static bool thread_saving;
+static int gap;
+
+//Parametri delle immagini memorizzate su disco
+static int p[3];    	
+
+/*!
+//void Start (initializationParams par, string path)
+//Mvo's detection and shadow suppression method 
+// 	@param[in] par the inizialization parameter
+//	@param[in] path the path of video suorce file
+*/
 void Start(initializationParams par,string path);
+/*!
+//reShadowing(FrameObject *frame, IplImage *background)
+//Reinsert detected ghost into background
+// 	@param[in] frame the frame object
+//	@param[out] background the result image 
+*/
+void reShadowing(FrameObject *frame, IplImage *background);
+/*!
+//void SaveDetectedToImage(FrameObject* currentFrame,bool three)
+//Save the detected object of one frame into a file 
+// 	@param[in] currentFrame the frame object
+//	@param[in] three if true save in a three folder 
+*/
+void SaveDetectedToImage(FrameObject* currentFrame,bool three);
 
 typedef struct _preprocessStruct{
 	IplImage *frame,*background,*salient;
