@@ -66,7 +66,6 @@ void SaveDetectedToImage(FrameObject* currentFrame,bool three){
 		CreateDirectory("detected",NULL);
 
 		for(i=det.begin(); i != det.end(); ++i){
-			//reShadowing((*j),bgModel);
 			n++;
 			if(three){
 				filename << "detected/frame"<< currentFrame->getFrameNumber();
@@ -291,8 +290,7 @@ void Start (initializationParams par, string path)
 	string video_path = path;
 	size = 10000000;
 	mutex = CreateMutex(NULL,FALSE,NULL);
-	//IplImage *bkg = cvLoadImage("C:/Users/Paolo/Pictures/sharp.jpg",1);
-	//IplImage *test = cvLoadImage("C:/Users/Paolo/Pictures/test.png",1);
+
 	IplImage *img = NULL;
 	list<IplImage*>::iterator it;
 
@@ -377,7 +375,7 @@ void Start (initializationParams par, string path)
 
 															    //<-------------				
 				if(cicle_background != 1)						//				|
-					cvUpdateBGStatModel(img,bgModel);			//				|	influenza in background update
+					cvUpdateBGStatModel(img,bgModel);			//				|	influenza il background update
 				cameraCorrection(img,img,MEDIAN,1.1,5);  		//>-------------
 
 				temp = new preprocessStruct(cvCloneImage(img),cvCloneImage(bgModel->background),cvCloneImage(bgModel->foreground));
@@ -411,9 +409,6 @@ void Start (initializationParams par, string path)
 	for(int waiting=1;waiting<=thread_num;waiting++)
 		if((waiting%gap)!=0)
 			WaitForSingleObject(handle.at(waiting),INFINITE);
-	//threadPool.CheckThreadStop();
-
-	/****************Reshadowing*****************/
 
 	/****blobanalysis****/
 	//int iu=0;
@@ -427,11 +422,6 @@ void Start (initializationParams par, string path)
 	//		}
 	//	}
 
-		//list<FrameObject>::iterator j;
-		//for(j=frame.begin(); j != frame.end(); ++j){
-		//	cvShowImage("",(*j).getForegroundMask());
-		//		cvWaitKey(10);
-		//}
 	if(thread_saving==FALSE)
 		WaitForSingleObject(handle.at(0),INFINITE);
 	LOG4CXX_INFO(loggerMain,"Elaborazione video " << video_path << " terminata.");

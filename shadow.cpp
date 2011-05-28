@@ -212,12 +212,6 @@ void shadowDetection(IplImage *src, IplImage *background,IplImage *foregroundSel
 		}
 		LOG4CXX_DEBUG(loggershadowDetection, "Param Define conclused");
 
-	//	Ts=20;
-
-		//temp=cvCloneImage(hsv);
-		//cvAbsDiffS(Dbkg,temp,MED);
-		//CvScalar MAD = cvAvg(temp);
-
 		cvSplit( hsv, H, S, V, 0);
 		cvSplit( background, bH, bS, bV, 0);
 
