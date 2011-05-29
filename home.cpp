@@ -341,8 +341,11 @@ void Start (initializationParams par, string path)
 	}
 	cout << endl;
 	LOG4CXX_INFO(loggerMain,"Modello del background creato correttamente");
+	cvNamedWindow("bk",1);
 	cvShowImage("bk",bgModel->background);
+	//cvSaveImage("background.jpg",bgModel->background,p);
 	cvWaitKey(0);
+	cvDestroyWindow("bk");
 	list<DetectedObject>::iterator i;
 	list<DetectedObject> det;
 

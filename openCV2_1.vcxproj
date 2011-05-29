@@ -140,7 +140,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\lib64\OpenCV2.1\include;$(SolutionDir)\lib64\OpenCV2.1\include\opencv;$(SolutionDir)\lib64\cvblob\cvBlob;$(SolutionDir)\lib64\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\lib\OpenCV2.1\include;$(SolutionDir)\lib\OpenCV2.1\include\opencv;$(SolutionDir)\lib\cvblob\cvBlob;$(SolutionDir)\lib\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -153,7 +153,8 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>Debug</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/Users/Paolo/Documents/Visual Studio 2010/Projects/openCV2_1/Debug/openCV2_1.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>C:/Development/OpenCV2.1/include;C:/Development/OpenCV2.1/include/opencv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -164,7 +165,7 @@
     <Link>
       <AdditionalOptions> /machine:x64 /debug %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;cxcore210d.lib;cv210d.lib;ml210d.lib;highgui210d.lib;cvaux210d.lib;log4cxx.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib64\OpenCV2.1/VS2010/lib/Debug"";$(SolutionDir)\lib64\OpenCV2.1/VS2010/lib/Debug""/$(Configuration);$(SolutionDir)\lib64\apache-log4cxx-0.10.0\projects\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\bin\x64"";$(SolutionDir)\bin\x64""/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>
       </ImportLibrary>
@@ -175,12 +176,13 @@
     </Link>
     <ProjectReference>
       <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalOptions> /Zm1000 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)\lib32\OpenCV2.1\include;$(SolutionDir)\lib32\OpenCV2.1\include\opencv;$(SolutionDir)\lib32\cvblob\cvBlob;$(SolutionDir)\lib32\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\lib\OpenCV2.1\include;$(SolutionDir)\lib\OpenCV2.1\include\opencv;$(SolutionDir)\lib\cvblob\cvBlob;$(SolutionDir)\lib\apache-log4cxx-0.10.0\src\main\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <CompileAs>CompileAsCpp</CompileAs>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -193,7 +195,8 @@
       <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>Debug</AssemblerListingLocation>
       <ObjectFileName>$(IntDir)</ObjectFileName>
-      <ProgramDataBaseFileName>C:/Users/Paolo/Documents/Visual Studio 2010/Projects/openCV2_1/Debug/openCV2_1.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>
+      </ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>C:/Development/OpenCV2.1/include;C:/Development/OpenCV2.1/include/opencv;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -204,7 +207,7 @@
     <Link>
       <AdditionalOptions> /machine:x64 /debug %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;cxcore210d.lib;cv210d.lib;ml210d.lib;highgui210d.lib;cvaux210d.lib;log4cxx.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib32\OpenCV2.1/VS2010/lib/Debug"";$(SolutionDir)\lib32\OpenCV2.1/VS2010/lib/Debug""/$(Configuration);$(SolutionDir)\lib32\apache-log4cxx-0.10.0\projects\Debug\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\bin\x32"";$(SolutionDir)\bin\x32""/$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ImportLibrary>
       </ImportLibrary>

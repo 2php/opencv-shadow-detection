@@ -85,8 +85,7 @@ void FrameObject::detectAll(initializationParams initPar){
 
 			//cameraCorrection(img,img,MEDIAN,1.1,5);
 			double TH = initPar.THRESHOLD;					
-			backgroundSuppression(img,background,this->foregroundMask);
-			
+			backgroundSuppression(img,background,this->foregroundMask);		
 			//cvThreshold(this->foregroundMask,this->salientForegroundMask,TL,255,CV_THRESH_BINARY);
 			cvThreshold(this->foregroundMask,this->foregroundMask,TH,255,CV_THRESH_BINARY);
 			LOG4CXX_TRACE(loggerFrameObject, "Background mask created");

@@ -1,10 +1,10 @@
 #include <cv.h>
 #include <highgui.h>
 #include <cvaux.h>
+#include <cvblob.h>
 #include <stdio.h> 
 #include <exception>
 #include <iostream>
-#include <cvblob.h>
 #include <math.h>
 #include "initializationParams.h"
 #include <log4cxx\logger.h>

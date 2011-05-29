@@ -44,18 +44,18 @@ void shodowThresholdMenu(){
 		do{
 			cout << "Define alfa con un valore compreso tra 0 e 1: (-1 to set AUTO)\n "; 
 			cin >> initPar.alfa;
-		}while(initPar.alfa<0 || initPar.alfa>1);
+		}while(initPar.alfa<-1 || initPar.alfa>1);
 		//beta deve essere compreso tra 0 e 1, inoltre deve essere maggiore di alfa
 		do {
 			cout << "Define beta con un valore compreso tra 0 e 1: (-1 to set AUTO)\n "; 
 			cin >> initPar.beta;
-		}while (initPar.beta<0 || initPar.beta>1 || initPar.alfa>initPar.beta);
+		}while (initPar.beta<-1 || initPar.beta>1 || initPar.alfa>initPar.beta);
 		cout << "Define Th: ";
 		cin >> initPar.Th;
 		cout << "Define Ts: ";
 		cin >> initPar.Ts;
-		cout << "Define K: ";
-		cin >> initPar.K;
+		//cout << "Define K: ";
+		//cin >> initPar.K;
 }
 
 int ParameterMenu(){
@@ -211,7 +211,7 @@ int HomeMenu(){
 
 int main ( int argc, char **argv ){
 	string response = "";
-	videoPath = "c:/users/paolo/videos/prova12.avi";
+	videoPath = "c:/users/paolo/videos/last.avi";
 	DOMConfigurator::configure("Log4cxxConfig.xml");
 	initPar =  initializationParams();
 	int res;

@@ -5,7 +5,7 @@
 #define _initializationParams_h
 
 #define DEFAULT_THRESHOLD 30
-#define DEFAULT_K 10
+#define DEFAULT_K 0.2
 #define DEFAULT_THREAD_NUM 30
 
 
@@ -40,16 +40,16 @@ typedef struct _initializationParams {
 			K(DEFAULT_K),
 			THREAD_NUM(DEFAULT_THREAD_NUM),
 			alfa(-1),beta(-1),Th(-1),Ts(-1),Delta(10),
-			cicle_background(1),
+			cicle_background(3000),
 			thread_saving(TRUE),
 			POOL(30),
 			wait(10),
 			three(FALSE),
-			saveShadow(FALSE),
+			saveShadow(TRUE),
 			supervisioning(FALSE),
 			fitting(10),
-			minArea(200),
-			maxArea(1000),
+			minArea(10),
+			maxArea(5000),
 			maxSupervisioned(20){}
   }initializationParams;
 
